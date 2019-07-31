@@ -51,7 +51,7 @@ class SpectralResidual:
         extended_series = SpectralResidual.extend_series(series)
         mag = self.spectral_residual_transform(extended_series)[:len(series)]
         ave_mag = average_filter(mag, n=self.__score_window)
-        ave_mag = [EPS if np.isclose(x, EPS) else x for x in ave_mag]
+        ave_mag[np.where(ave_mag <= EPS)] = EPS
 
         return abs(mag - ave_mag) / ave_mag
 
@@ -66,15 +66,18 @@ class SpectralResidual:
 
         trans = np.fft.fft(values)
         mag = np.sqrt(trans.real ** 2 + trans.imag ** 2)
+        eps_index = np.where(mag <= EPS)[0]
+        mag[eps_index] = EPS
 
-        mag_log = [np.log(item) if abs(item) > EPS else 0 for item in mag]
+        mag_log = np.log(mag)
+        mag_log[eps_index] = 0
 
         spectral = np.exp(mag_log - average_filter(mag_log, n=self.__mag_window))
 
-        trans.real = [i_real * i_spectral / i_mag if abs(i_mag) > EPS else 0
-                      for i_real, i_spectral, i_mag in zip(trans.real, spectral, mag)]
-        trans.imag = [i_imag * i_spectral / i_mag if abs(i_mag) > EPS else 0
-                      for i_imag, i_spectral, i_mag in zip(trans.imag, spectral, mag)]
+        trans.real = trans.real * spectral / mag
+        trans.imag = trans.imag * spectral / mag
+        trans.real[eps_index] = 0
+        trans.imag[eps_index] = 0
 
         wave_r = np.fft.ifft(trans)
         mag = np.sqrt(wave_r.real ** 2 + wave_r.imag ** 2)
