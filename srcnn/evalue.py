@@ -24,16 +24,6 @@ def get_path(data_source):
     if data_source == 'kpi':
         dir_ = root + '/Test/'
         trainfiles = [dir_ + _ for _ in os.listdir(dir_)]
-        dir_ = root + '/Train/'
-        testfiles = [dir_ + _ for _ in os.listdir(dir_)]
-        testfiles = []
-        files = trainfiles + testfiles
-    elif data_source == 'test_kpi':
-        dir_ = root + '/test_kpi/test/'
-        trainfiles = [dir_ + _ for _ in os.listdir(dir_)]
-        dir_ = root + '/Train/'
-        testfiles = [dir_ + _ for _ in os.listdir(dir_)]
-        testfiles = []
         files = trainfiles
     else:
         dir_ = root + '/' + data_source + '/'
