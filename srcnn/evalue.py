@@ -5,7 +5,6 @@ import json
 import argparse
 from spectral_residual import SpectralResidual
 from utils import *
-# from utils_new import *
 
 
 def auto():
@@ -42,7 +41,7 @@ def get_path(data_source):
     return files
 
 
-def get_score(data_source, files, thres):
+def get_score(data_source, files, thres, option):
     total_time = 0
     results = []
     savedscore = []
@@ -60,7 +59,7 @@ def get_score(data_source, files, thres):
             continue
         time_start = time.time()
         # making predictions here
-        timestamp, label, pre, scores = models[model](in_timestamp, in_value, in_label, window, net, thres)
+        timestamp, label, pre, scores = models[model](in_timestamp, in_value, in_label, window, net, option, thres)
         time_end = time.time()
         total_time += time_end - time_start
         results.append([timestamp, label, pre, f])
@@ -78,6 +77,8 @@ if __name__ == '__main__':
     parser.add_argument('--thres', type=int, default=0.95, help='initial threshold of SR')
     parser.add_argument('--auto', type=bool, default=False, help='Automatic filling parameters')
     parser.add_argument('--model', type=str, default='sr_cnn', help='model')
+    parser.add_argument('--missing_option', type=str, default='anomaly',
+                        help='missing data option, anomaly means treat missing data as anomaly')
 
     # data window model_path delay epoch
     args = parser.parse_args()
@@ -100,7 +101,7 @@ if __name__ == '__main__':
     srcnn_model = Anomaly(window)
     net = load_model(srcnn_model, model_path).cuda()
     files = get_path(data_source)
-    total_time, results, savedscore = get_score(data_source, files, args.thres)
+    total_time, results, savedscore = get_score(data_source, files, args.thres, args.missing_option)
     print('\n***********************************************')
     print('data source:', data_source, '     model:', model)
     print('-------------------------------')

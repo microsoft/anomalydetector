@@ -133,6 +133,10 @@ def sr_cnn(data_path, model_path, win_size, lr, epochs, batch, num_worker, load_
                     epoch, batch_idx * len(inputs), len(train_loader.dataset),
                            100. * batch_idx / len(train_loader),
                            loss1.item() / len(inputs)))
+            # if batch_idx % 100 == 0:
+            #     print(inputs)
+            #     print(output)
+            #     print(lb)
         print('tot TP=%d FP=%d TN=%d FN=%d' % (totTP, totFP, totTN, totFN))
 
     model = Anomaly(win_size)
@@ -246,7 +250,7 @@ class gen_set(Dataset):
 
 
 # evalue
-def sr_cnn_eval(timestamp, value, label, window, net, threshold=0.95, back_k=0, backaddnum=5, step=1):
+def sr_cnn_eval(timestamp, value, label, window, net, ms_optioin, threshold=0.95, back_k=0, backaddnum=5, step=1):
     def Var(x):
         return Variable(x.cuda())
 
@@ -270,6 +274,7 @@ def sr_cnn_eval(timestamp, value, label, window, net, threshold=0.95, back_k=0, 
         back = 5
     detres = [0] * (win_size - backaddnum)
     scores = [0] * (win_size - backaddnum)
+
     for pt in range(win_size - backaddnum + back + step, length - back, step):
         head = max(0, pt - (win_size - backaddnum))
         tail = min(length, pt)
@@ -282,4 +287,15 @@ def sr_cnn_eval(timestamp, value, label, window, net, threshold=0.95, back_k=0, 
     detres += [0] * (length - len(detres))
     scores += [0] * (length - len(scores))
 
-    return timestamp[:], label[:], detres[:], scores[:]
+    if ms_optioin == 'anomaly':
+        last = -1
+        interval = min([timestamp[i] - timestamp[i - 1] for i in range(1, len(timestamp))])
+        for i in range(1, len(timestamp)):
+            if timestamp[i] - timestamp[i - 1] > interval:
+                if last >= 0 and i - last < 1000:
+                    detres[i] = 1
+                    scores[i] = 1
+            if detres[i] == 1:
+                last = i
+
+    return timestamp[:].tolist(), label[:], detres[:], scores[:]
