@@ -1,9 +1,33 @@
+"""
+Copyright (C) Microsoft Corporation. All rights reserved.​
+ ​
+Microsoft Corporation ("Microsoft") grants you a nonexclusive, perpetual,
+royalty-free right to use, copy, and modify the software code provided by us
+("Software Code"). You may not sublicense the Software Code or any use of it
+(except to your affiliates and to vendors to perform work on your behalf)
+through distribution, network access, service agreement, lease, rental, or
+otherwise. This license does not purport to express any claim of ownership over
+data you may have shared with Microsoft in the creation of the Software Code.
+Unless applicable law gives you more rights, Microsoft reserves all other
+rights not expressly granted herein, whether by implication, estoppel or
+otherwise. ​
+ ​
+THE SOFTWARE CODE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+MICROSOFT OR ITS LICENSORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THE SOFTWARE CODE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+"""
 import numpy as np
 from sklearn.metrics import f1_score, precision_score, recall_score
 
 
-def get_range_proba(predict, label, delay = 7):
-    #print('delay :',delay)
+def get_range_proba(predict, label, delay=7):
     predict = np.array(predict)
     label = np.array(label)
 
@@ -22,7 +46,7 @@ def get_range_proba(predict, label, delay = 7):
         pos = sp
     sp = len(label)
 
-    if is_anomaly:  # anomaly in the end
+    if is_anomaly:
         if 1 in predict[pos: min(pos + delay + 1, sp)]:
             new_predict[pos: sp] = 1
         else:
@@ -49,18 +73,19 @@ def reconstruct_label(timestamp, label):
     return new_label
 
 
-def reconstruct_series(timestamp, label, predict, delay = 7):
+def reconstruct_series(timestamp, label, predict, delay=7):
     label = reconstruct_label(timestamp, label)
     predict = reconstruct_label(timestamp, predict)
     predict = get_range_proba(predict, label, delay)
     return label.tolist(), predict.tolist()
 
-def calc(pred,true):
+
+def calc(pred, true):
     TP = 0
     FP = 0
     TN = 0
     FN = 0
-    for pre,gt in zip(pred,true):
+    for pre, gt in zip(pred, true):
         if gt == 1:
             if pre == 1:
                 TP += 1
@@ -71,30 +96,29 @@ def calc(pred,true):
                 FP += 1
             else:
                 TN += 1
-    return TP,FP,TN,FN
+    return TP, FP, TN, FN
 
-def evaluate_for_all_series(lst_timestamp_label_predict, delay = 7, prt=True):
+
+def evaluate_for_all_series(lst_timestamp_label_predict, delay=7, prt=True):
     labels, predicts = [], []
-    for timestamp, label, predict,_ in lst_timestamp_label_predict:
-        #print('f:',_)
-        if timestamp==[]:
+    for timestamp, label, predict, _ in lst_timestamp_label_predict:
+        if timestamp == []:
             print('continue !!')
             continue
         lbl, pdt = reconstruct_series(timestamp, label, predict, delay)
         labels += lbl
         predicts += pdt
-        # print('ifscore :',f1_score(lbl,pdt))
 
     f1 = f1_score(labels, predicts)
-    pre=precision_score(labels, predicts)
-    rec=recall_score(labels, predicts)
-    TP,FP,TN,FN = calc(predicts,labels)
+    pre = precision_score(labels, predicts)
+    rec = recall_score(labels, predicts)
+    TP, FP, TN, FN = calc(predicts, labels)
     if prt:
         print('precision', pre)
         print('recall', rec)
         print('f1', f1)
         print('-------------------------------')
-    return f1,pre,rec,TP,FP,TN,FN
+    return f1, pre, rec, TP, FP, TN, FN
 
 
 def bi_get_range_proba(predict, label, left, right):
@@ -133,18 +157,18 @@ def bi_evaluate_for_all_series(lst_timestamp_label_predict, left, right, prt=Tru
     labels, predicts = [], []
     save = []
     for timestamp, label, predict in lst_timestamp_label_predict:
-        if timestamp==[]:
+        if timestamp == []:
             continue
         try:
             lbl, pdt = bi_reconstruct_series(timestamp, label, predict, left, right)
         except:
             continue
-        ifi = f1_score(lbl,pdt)
+        ifi = f1_score(lbl, pdt)
         save.append(ifi)
         labels += lbl
         predicts += pdt
-    with open('eachscore.json','w+') as fout:
-        json.dump(save,fout)
+    with open('eachscore.json', 'w+') as fout:
+        json.dump(save, fout)
     f1 = f1_score(labels, predicts)
     pre = precision_score(labels, predicts)
     rec = recall_score(labels, predicts)
@@ -157,8 +181,8 @@ def bi_evaluate_for_all_series(lst_timestamp_label_predict, left, right, prt=Tru
 
 
 def get_variance(f_score, all_fscore):
-    va=0.0
+    va = 0.0
     for i in range(len(all_fscore)):
         va += 1.0 * (all_fscore[i] - f_score) * (all_fscore[i] - f_score)
 
-    return va/len(all_fscore)
+    return va / len(all_fscore)

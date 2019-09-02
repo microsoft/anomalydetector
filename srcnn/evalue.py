@@ -1,10 +1,36 @@
+"""
+Copyright (C) Microsoft Corporation. All rights reserved.​
+ ​
+Microsoft Corporation ("Microsoft") grants you a nonexclusive, perpetual,
+royalty-free right to use, copy, and modify the software code provided by us
+("Software Code"). You may not sublicense the Software Code or any use of it
+(except to your affiliates and to vendors to perform work on your behalf)
+through distribution, network access, service agreement, lease, rental, or
+otherwise. This license does not purport to express any claim of ownership over
+data you may have shared with Microsoft in the creation of the Software Code.
+Unless applicable law gives you more rights, Microsoft reserves all other
+rights not expressly granted herein, whether by implication, estoppel or
+otherwise. ​
+ ​
+THE SOFTWARE CODE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+MICROSOFT OR ITS LICENSORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THE SOFTWARE CODE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+"""
+
 import os
-from competition_metric import get_variance, evaluate_for_all_series
+from srcnn.competition_metric import get_variance, evaluate_for_all_series
 import time
 import json
 import argparse
-from spectral_residual import SpectralResidual
-from utils import *
+from msanomalydetector.spectral_residual import SpectralResidual
+from srcnn.utils import *
 
 
 def auto():
@@ -35,7 +61,6 @@ def get_score(data_source, files, thres, option):
     total_time = 0
     results = []
     savedscore = []
-    # iterate over each series
     for f in files:
         print('reading', f)
         if data_source == 'kpi' or data_source == 'test_kpi':
@@ -48,7 +73,6 @@ def get_score(data_source, files, thres, option):
             print("length is shorter than win_size", len(in_value), window)
             continue
         time_start = time.time()
-        # making predictions here
         timestamp, label, pre, scores = models[model](in_timestamp, in_value, in_label, window, net, option, thres)
         time_end = time.time()
         total_time += time_end - time_start
@@ -59,7 +83,7 @@ def get_score(data_source, files, thres, option):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='SRCNN')
-    parser.add_argument('--data', type=str, default='yahoo', help='location of the data file')
+    parser.add_argument('--data', type=str, required=True, help='location of the data file')
     parser.add_argument('--window', type=int, default=128, help='window size')
     parser.add_argument('--epoch', type=int, default=10)
     parser.add_argument('--model_path', type=str, default='snapshot', help='model path')
@@ -70,7 +94,6 @@ if __name__ == '__main__':
     parser.add_argument('--missing_option', type=str, default='anomaly',
                         help='missing data option, anomaly means treat missing data as anomaly')
 
-    # data window model_path delay epoch
     args = parser.parse_args()
     if args.auto:
         window, epoch = auto()
@@ -83,7 +106,6 @@ if __name__ == '__main__':
     root = os.getcwd()
     print(data, window, epoch)
     models = {
-        # 'sr': SpectralResidual.spectral_residual_transform,
         'sr_cnn': sr_cnn_eval,
     }
 
@@ -100,7 +122,6 @@ if __name__ == '__main__':
         json.dump(savedscore, f)
     print('time used for making predictions:', total_time, 'seconds')
 
-    # savedscore=json.load(open(data_source + '_saved_scores.json'))
 
     best = 0.
     bestthre = 0.

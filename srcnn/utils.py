@@ -1,3 +1,29 @@
+"""
+Copyright (C) Microsoft Corporation. All rights reserved.​
+ ​
+Microsoft Corporation ("Microsoft") grants you a nonexclusive, perpetual,
+royalty-free right to use, copy, and modify the software code provided by us
+("Software Code"). You may not sublicense the Software Code or any use of it
+(except to your affiliates and to vendors to perform work on your behalf)
+through distribution, network access, service agreement, lease, rental, or
+otherwise. This license does not purport to express any claim of ownership over
+data you may have shared with Microsoft in the creation of the Software Code.
+Unless applicable law gives you more rights, Microsoft reserves all other
+rights not expressly granted herein, whether by implication, estoppel or
+otherwise. ​
+ ​
+THE SOFTWARE CODE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+MICROSOFT OR ITS LICENSORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THE SOFTWARE CODE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+"""
+
 import pickle
 import csv
 import numpy as np
@@ -6,13 +32,12 @@ import torch.utils.data as data
 from torch.autograd import Variable
 from tqdm import tqdm
 from torch.utils.data import Dataset
-from net import *
+from srcnn.net import *
 import json
-from util import average_filter
-from spectral_residual import SpectralResidual
+from msanomalydetector.util import average_filter
+from msanomalydetector.spectral_residual import SpectralResidual
 
 
-# gen
 def read_pkl(path):
     with open(path, 'rb') as f:
         return pickle.load(f)
@@ -29,12 +54,10 @@ def read_csv_kpi(path):
             if cnt == 0:
                 cnt += 1
                 continue
-            # print('row :',row)
             tm.append(int(row[0]))
             vl.append(float(row[1]))
             lb.append(int(row[2]))
             cnt += 1
-        # print ('len',cnt-1)
         f.close()
     return tm, vl, lb
 
@@ -55,7 +78,6 @@ def read_csv(path):
     return tm, vl
 
 
-# train
 def sr_cnn(data_path, model_path, win_size, lr, epochs, batch, num_worker, load_path=None):
     def adjust_lr(optimizer, epoch):
         base_lr = lr
@@ -122,7 +144,6 @@ def sr_cnn(data_path, model_path, win_size, lr, epochs, batch, num_worker, load_
                 totFN += FN
                 if batch_idx % 100 == 0:
                     print('TP=%d FP=%d TN=%d FN=%d' % (TP, FP, TN, FN))
-                    # print('aa : ', aa)
             loss1 = loss_function(output, lb)
             loss1.backward()
             train_loss += loss1.item()
@@ -133,11 +154,6 @@ def sr_cnn(data_path, model_path, win_size, lr, epochs, batch, num_worker, load_
                     epoch, batch_idx * len(inputs), len(train_loader.dataset),
                            100. * batch_idx / len(train_loader),
                            loss1.item() / len(inputs)))
-            # if batch_idx % 100 == 0:
-            #     print(inputs)
-            #     print(output)
-            #     print(lb)
-        print('tot TP=%d FP=%d TN=%d FN=%d' % (totTP, totFP, totTN, totFN))
 
     model = Anomaly(win_size)
     net = model.cuda()
@@ -145,7 +161,7 @@ def sr_cnn(data_path, model_path, win_size, lr, epochs, batch, num_worker, load_
     net = torch.nn.DataParallel(net, list(range(gpu_num)))
     print(net)
     base_lr = lr
-    bp_parameters = filter(lambda p: p.requires_grad, net.parameters())  # to be done addseed
+    bp_parameters = filter(lambda p: p.requires_grad, net.parameters())
     optimizer = optim.SGD(bp_parameters, lr=base_lr, momentum=0.9, weight_decay=0.0)
 
     if load_path != None:
@@ -224,13 +240,11 @@ class gen_set(Dataset):
         idx = index % self.negrawlen
         datas = self.kpinegraw[idx]
         datas = np.array(datas)
-        ##gen
         data = datas[0, :].astype(np.float64)
         lbs = datas[1, :].astype(np.float64)
         wave = spectral_residual(data)
         waveavg = average_filter(wave)
         for i in range(self.width):
-            # set these numbers as class variables
             if wave[i] < 0.001 and waveavg[i] < 0.001:
                 lbs[i] = 0
                 continue
@@ -249,7 +263,6 @@ class gen_set(Dataset):
         return resdata, reslb
 
 
-# evalue
 def sr_cnn_eval(timestamp, value, label, window, net, ms_optioin, threshold=0.95, back_k=0, backaddnum=5, step=1):
     def Var(x):
         return Variable(x.cuda())
@@ -259,7 +272,6 @@ def sr_cnn_eval(timestamp, value, label, window, net, ms_optioin, threshold=0.95
             x = torch.from_numpy(100 * x).float()
             x = torch.unsqueeze(x, 0)
             x = Var(x)
-            # print(x)
             output = net(x)
         aa = output.detach().cpu().numpy().reshape(-1)
         res = np.zeros(aa.shape, np.int64)

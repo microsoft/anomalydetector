@@ -1,9 +1,34 @@
+"""
+Copyright (C) Microsoft Corporation. All rights reserved.​
+ ​
+Microsoft Corporation ("Microsoft") grants you a nonexclusive, perpetual,
+royalty-free right to use, copy, and modify the software code provided by us
+("Software Code"). You may not sublicense the Software Code or any use of it
+(except to your affiliates and to vendors to perform work on your behalf)
+through distribution, network access, service agreement, lease, rental, or
+otherwise. This license does not purport to express any claim of ownership over
+data you may have shared with Microsoft in the creation of the Software Code.
+Unless applicable law gives you more rights, Microsoft reserves all other
+rights not expressly granted herein, whether by implication, estoppel or
+otherwise. ​
+ ​
+THE SOFTWARE CODE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+MICROSOFT OR ITS LICENSORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THE SOFTWARE CODE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+"""
+
 import argparse
-# from pluskensho_gen_fake_train import *
-from utils import *
+from srcnn.utils import *
 import os
 import time
-from util import average_filter
+from msanomalydetector.util import average_filter
 
 
 class gen():
@@ -29,8 +54,6 @@ class gen():
         for pt in range(self.win_siz, length - back, self.step):
             head = max(0, pt - self.win_siz)
             tail = min(length - back, pt)
-            # print("length",length,win_size,pt,head,tail,len(detres))
-            # gen data
             data = np.array(value[head:tail])
             data = data.astype(np.float64)
             data = normalize(data)
@@ -55,7 +78,6 @@ class gen():
 
 
 def auto(dic):
-    # automatic generate parameters
     path_auto = os.getcwd() + '/auto.json'
     auto = {}
     for item, value in dic:
@@ -97,18 +119,14 @@ if __name__ == '__main__':
         print('reading', f)
         in_timestamp, in_value = read_csv(f)
         in_label = []
-        # the timestamp, value, and label for one series
-        # in_timestamp, in_value, in_label = tmp_data['timestamp'], tmp_data['value'], tmp_data['label']
         if len(in_value) < args.window:
             print("value's length < window size", len(in_value), args.window)
             continue
         time_start = time.time()
         train_data = generator.generate_train_data(in_value)
-        # print('traindata :',len(train_data))
         time_end = time.time()
         total_time += time_end - time_start
         results += train_data
-        # print(np.array(train_data).shape,np.array(results).shape,'results')
     print('file num:', len(files))
     print('total fake data size:', len(results))
     with open(train_data_path, 'w+') as f:

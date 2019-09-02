@@ -1,5 +1,30 @@
+"""
+Copyright (C) Microsoft Corporation. All rights reserved.​
+ ​
+Microsoft Corporation ("Microsoft") grants you a nonexclusive, perpetual,
+royalty-free right to use, copy, and modify the software code provided by us
+("Software Code"). You may not sublicense the Software Code or any use of it
+(except to your affiliates and to vendors to perform work on your behalf)
+through distribution, network access, service agreement, lease, rental, or
+otherwise. This license does not purport to express any claim of ownership over
+data you may have shared with Microsoft in the creation of the Software Code.
+Unless applicable law gives you more rights, Microsoft reserves all other
+rights not expressly granted herein, whether by implication, estoppel or
+otherwise. ​
+ ​
+THE SOFTWARE CODE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+MICROSOFT OR ITS LICENSORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THE SOFTWARE CODE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+"""
 import argparse
-from utils import *
+from srcnn.utils import *
 import numpy as np
 import os
 import time
@@ -19,7 +44,7 @@ def auto(epoch):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='SRCNN')
-    parser.add_argument('--data', type=str, default='kensho-min-6000', help='location of the data file')
+    parser.add_argument('--data', type=str, required=True, help='location of the data file')
     parser.add_argument('--window', type=int, default=128, help='window size')
     parser.add_argument('--lr', type=int, default=1e-6, help='learning rate')
     parser.add_argument('--step', type=int, default=64, help='step')
@@ -34,8 +59,6 @@ if __name__ == '__main__':
     parser.add_argument('--auto', type=bool, default=False, help='Automatic filling parameters')
 
     args = parser.parse_args()
-    # seed,data,window,save ,load,lr,epoch,batch_size,num_workers
-    # data step window seed
     if args.auto:
         data, window = auto(args.epoch)
     else:
@@ -56,7 +79,6 @@ if __name__ == '__main__':
 
     total_time = 0
     time_start = time.time()
-    # making training here
     models[model](train_data_path, model_path, window, args.lr, args.epoch, args.batch_size, args.num_workers,
                   load_path=load_path)
     time_end = time.time()
