@@ -104,7 +104,7 @@ if __name__ == '__main__':
     parser.add_argument('--window', type=int, default=128, help='window size')
     parser.add_argument('--step', type=int, default=64, help='step')
     parser.add_argument('--seed', type=int, default=54321, help='random seed')
-    parser.add_argument('--num', type=int, default=10, help='upper limit value for the number of anomaly points')
+    parser.add_argument('--num', type=int, default=10, help='upper limit value for the number of anomaly points, no more than window_size*0.01')
     args = parser.parse_args()
     np.random.seed(args.seed)
     auto(vars(args).items())
