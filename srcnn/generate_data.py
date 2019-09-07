@@ -32,11 +32,11 @@ from msanomalydetector.util import average_filter
 
 
 class gen():
-    def __init__(self, win_siz, step, nums):
+    def __init__(self, win_siz, step, ratio):
         self.control = 0
         self.win_siz = win_siz
         self.step = step
-        self.number = nums
+        self.ratio = ratio
 
     def generate_train_data(self, value, back_k=0):
         def normalize(a):
@@ -57,7 +57,7 @@ class gen():
             data = np.array(value[head:tail])
             data = data.astype(np.float64)
             data = normalize(data)
-            num = np.random.randint(1, self.number)
+            num = np.random.randint(1, int(self.win_siz * self.ratio))
             ids = np.random.choice(self.win_siz, num, replace=False)
             lbs = np.zeros(self.win_siz, dtype=np.int64)
             if (self.win_siz - 6) not in ids:
@@ -104,7 +104,8 @@ if __name__ == '__main__':
     parser.add_argument('--window', type=int, default=128, help='window size')
     parser.add_argument('--step', type=int, default=64, help='step')
     parser.add_argument('--seed', type=int, default=54321, help='random seed')
-    parser.add_argument('--num', type=int, default=10, help='upper limit value for the number of anomaly points, no more than window_size*0.1')
+    parser.add_argument('--anomaly_ratio', type=int, default=0.1,
+                        help='The ratio of injection anomalies, no less than 0.1')
     args = parser.parse_args()
     np.random.seed(args.seed)
     auto(vars(args).items())
@@ -114,7 +115,7 @@ if __name__ == '__main__':
     total_time = 0
     results = []
     print("generating train data")
-    generator = gen(args.window, args.step, args.num)
+    generator = gen(args.window, args.step, args.anomaly_ratio)
     for f in files:
         print('reading', f)
         in_timestamp, in_value = read_csv(f)
