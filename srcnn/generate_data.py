@@ -104,7 +104,7 @@ if __name__ == '__main__':
     parser.add_argument('--window', type=int, default=128, help='window size')
     parser.add_argument('--step', type=int, default=64, help='step')
     parser.add_argument('--seed', type=int, default=54321, help='random seed')
-    parser.add_argument('--anomaly_ratio', type=int, default=0.1,
+    parser.add_argument('--anomaly_ratio', type=float, default=0.1,
                         help='The ratio of injection anomalies, no less than 0.1')
     args = parser.parse_args()
     np.random.seed(args.seed)
