@@ -13,6 +13,11 @@ This project has adopted the [Microsoft Open Source Code of Conduct](https://ope
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
 contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
 
+Users can run SR by refering sample here
+
+https://github.com/microsoft/anomalydetector/blob/master/main.py
+This sample only RUN SR, for SR-CNN please refer the below section. Both SR and SR-CNN use the same evaluation in evaluate.py.
+
 The SR-CNN project is consisted of three major parts.<br> 
 1.generate_data.py is used for preprocess the data, where the original continuous time series are splited according to window size and  artificial outliers are injected in proportion. <br> 
 `
