@@ -18,7 +18,7 @@ The project is consisted of three major parts.<br>
 `python
 python generate_data.py 
 `<br> 
-if you want to change the default config, you can use the command line args:
+if you want to change the default config, you can use the command line args:<br>
 `python
 python generate_data.py --window 256 --step 128
 `<br> 
@@ -28,7 +28,7 @@ python trian.py
 `<br> 
 3.evalue.py is the evaluation module.As mentioned in the paper, we set different delays to verify whether a whole section of anomalies can be detected in time. For example,  
 When delay = 7, for an entire segment of anomaly, if the anomaly detector can issue an alarm at its first 7 points, it is considered that the entire segment of anomaly has been successfully detected, otherwise it is considered to have not been detected.<br> 
-Run the code:
+Run the code:<br>
 `python
 python evalue.py
 `<br> 
