@@ -15,20 +15,20 @@ contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additio
 
 The project is consisted of three major parts.<br> 
 1.generate_data.py is used for preprocess the data, where the original continuous time series are splited according to window size and  artificial outliers are injected in proportion. <br> 
-`python
+`
 python generate_data.py 
 `<br> 
 if you want to change the default config, you can use the command line args:<br>
-`python
+`
 python generate_data.py --window 256 --step 128
 `<br> 
 2.train.py is the network trianing module of SR-CNN. SR transformer is applied on each time-series before training.<br> 
-`python
+`
 python trian.py
 `<br> 
 3.evalue.py is the evaluation module.As mentioned in the paper, we set different delays to verify whether a whole section of anomalies can be detected in time. For example,  
 When delay = 7, for an entire segment of anomaly, if the anomaly detector can issue an alarm at its first 7 points, it is considered that the entire segment of anomaly has been successfully detected, otherwise it is considered to have not been detected.<br> 
 Run the code:<br>
-`python
+`
 python evalue.py
 `<br> 
