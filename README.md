@@ -16,9 +16,10 @@ contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additio
 The project is consisted of three major parts.
 
 1.generate_data.py is used for preprocess the data, where the original continuous time series are splited according to window size and  artificial outliers are injected in proportion. 
-`''python
+
+`python
 python generate_data.py --data yahoo --window 128
-`''
+`
 2.train.py is the network trianing module of SR-CNN. SR transformer is applied on each time-series before training.
 
 3.evalue.py is the evaluation module.As mentioned in the paper, we set different delays to verify whether a whole section of anomalies can be detected in time. 
