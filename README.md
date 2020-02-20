@@ -18,7 +18,7 @@ The project is consisted of three major parts.<br>
 `
 python generate_data.py --data <dataset>
 `<br> 
-if you want to change the default config, you can use the command line args:<br>
+where <dataset> is the file name of data folder.If you want to change the default config, you can use the command line args:<br>
 `
 python generate_data.py -data <dataset> --window 256 --step 128
 `<br> 
