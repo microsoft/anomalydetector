@@ -12,3 +12,8 @@ provided by the bot. You will only need to do this once across all repos using o
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
 contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+
+The project is consisted of three major parts.
+1.generate_data.py is used for preprocess the data, where the original continuous time series are splited according to window size and  artificial outliers are injected in proportion. 
+2.train.py is the network trianing module of SR-CNN. SR transformer is applied on each time-series before training.
+3.evalue.py is the evaluation module.As mentioned in the paper, we set different delays to verify whether a whole section of anomalies can be detected in time. 
