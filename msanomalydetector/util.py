@@ -23,6 +23,7 @@ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THE SOFTWARE CODE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 """
+from enum import Enum
 import numpy as np
 
 IsAnomaly = "isAnomaly"
@@ -30,12 +31,21 @@ AnomalyId = "id"
 AnomalyScore = "score"
 Value = "value"
 Timestamp = "timestamp"
+Mag = "mag"
+ExpectedValue = "expectedValue"
+UpperBoundary = "upperBoundary"
+LowerBoundary = "lowerBoundary"
 
 MAX_RATIO = 0.25
 EPS = 1e-8
-THRESHOLD = 3
+THRESHOLD = 0.3
 MAG_WINDOW = 3
 SCORE_WINDOW = 100
+
+
+class DetectMode(Enum):
+    anomaly_only = 'AnomalyOnly'
+    anomaly_and_margin = 'AnomalyAndMargin'
 
 
 def average_filter(values, n=3):
@@ -61,3 +71,35 @@ def average_filter(values, n=3):
         res[i] /= (i + 1)
 
     return res
+
+
+def leastsq(x, y):
+    n = len(x)
+    sum_x = np.sum(x)
+    sum_y = np.sum(y)
+    sum_xx = np.sum(np.multiply(x, x))
+    sum_xy = np.sum(np.multiply(x, y))
+    a = (n * sum_xy - sum_x * sum_y) / (n * sum_xx - sum_x * sum_x)
+    b = (sum_xx * sum_y - sum_x * sum_xy) / (n * sum_xx - sum_x * sum_x)
+    return a, b
+
+
+def deanomaly_entire(values, entire_anomalies):
+    min_points_to_fit = 4
+    for idx in entire_anomalies:
+        step = 1
+        start = max(idx - step, 0)
+        end = min(len(values) - 1, idx + step)
+        fit_values = [(i, values[i]) for i in range(start, end+1) if i not in entire_anomalies]
+        while len(fit_values) < min_points_to_fit and (start > 0 or end < len(values)-1):
+            step = step + 2
+            start = max(idx - step, 0)
+            end = min(len(values) - 1, idx + step)
+            fit_values = [(i, values[i]) for i in range(start, end+1) if i not in entire_anomalies]
+
+        if len(fit_values) > 1:
+            x, y = tuple(zip(*fit_values))
+            a, b = leastsq(x, y)
+            values[idx] = a * idx + b
+
+    return values
