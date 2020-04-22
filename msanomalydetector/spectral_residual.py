@@ -24,36 +24,75 @@ ARISING IN ANY WAY OUT OF THE USE OF THE SOFTWARE CODE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 """
 
-from msanomalydetector.util import AnomalyId, AnomalyScore, IsAnomaly, Value, Timestamp, EPS, average_filter
 import pandas as pd
 import numpy as np
 
+from msanomalydetector.util import *
+import msanomalydetector.boundary_utils as boundary_helper
+from msanomalydetector._anomaly_kernel_cython import median_filter
+
 
 class SpectralResidual:
-    def __init__(self, series, threshold, mag_window, score_window):
+    def __init__(self, series, threshold, mag_window, score_window, sensitivity, detect_mode):
         self.__series__ = series
+        self.__values__ = self.__series__['value'].tolist()
         self.__threshold__ = threshold
         self.__mag_window = mag_window
         self.__score_window = score_window
+        self.__sensitivity = sensitivity
+        self.__detect_mode = detect_mode
+        self.__anomaly_frame = None
 
     def detect(self):
-        anomaly_scores = self.generate_spectral_score(series=self.__series__['value'].tolist())
+        if self.__anomaly_frame is None:
+            self.__anomaly_frame = self.__detect()
+
+        return self.__anomaly_frame
+
+        return anomaly_frame
+
+    def __detect(self):
+        extended_series = SpectralResidual.extend_series(self.__values__)
+        mags = self.spectral_residual_transform(extended_series)[:len(self.__series__)]
+        anomaly_scores = self.generate_spectral_score(mags)
         anomaly_frame = pd.DataFrame({Timestamp: self.__series__['timestamp'],
                                       Value: self.__series__['value'],
                                       AnomalyId: list(range(0, len(anomaly_scores))),
+                                      Mag: mags,
                                       AnomalyScore: anomaly_scores})
         anomaly_frame[IsAnomaly] = np.where(anomaly_frame[AnomalyScore] >= self.__threshold__, True, False)
         anomaly_frame.set_index(AnomalyId, inplace=True)
 
+        if self.__detect_mode == DetectMode.anomaly_and_margin:
+            anomaly_frame[ExpectedValue] = self.calculate_expected_value(anomaly_frame[anomaly_frame[IsAnomaly]].index.tolist())
+            boundary_units = boundary_helper.calculate_bounary_unit_entire(np.asarray(self.__values__),
+                                                                           anomaly_frame[IsAnomaly].values)
+            anomaly_frame[AnomalyScore] = boundary_helper.calculate_anomaly_scores(
+                values=anomaly_frame[Value].values,
+                expected_values=anomaly_frame[ExpectedValue].values,
+                units=boundary_units,
+                is_anomaly=anomaly_frame[IsAnomaly].values
+            )
+
+            margins = [boundary_helper.calculate_margin(u, self.__sensitivity) for u in boundary_units]
+
+            anomaly_frame[LowerBoundary] = anomaly_frame[ExpectedValue].values - margins
+            anomaly_frame[UpperBoundary] = anomaly_frame[ExpectedValue].values + margins
+            anomaly_frame[IsAnomaly] = np.logical_and(anomaly_frame[IsAnomaly].values,
+                                                      anomaly_frame[LowerBoundary].values <= anomaly_frame[Value].values)
+            anomaly_frame[IsAnomaly] = np.logical_and(anomaly_frame[IsAnomaly].values,
+                                                      anomaly_frame[Value].values <= anomaly_frame[UpperBoundary].values)
+
         return anomaly_frame
 
-    def generate_spectral_score(self, series):
-        extended_series = SpectralResidual.extend_series(series)
-        mag = self.spectral_residual_transform(extended_series)[:len(series)]
-        ave_mag = average_filter(mag, n=self.__score_window)
+    def generate_spectral_score(self, mags):
+        ave_mag = average_filter(mags, n=self.__score_window)
         ave_mag[np.where(ave_mag <= EPS)] = EPS
 
-        return abs(mag - ave_mag) / ave_mag
+        raw_scores = abs(mags - ave_mag) / ave_mag
+        scores = np.clip(raw_scores / 10.0, 0, 1.0)
+
+        return scores
 
     def spectral_residual_transform(self, values):
         """
@@ -124,3 +163,12 @@ class SpectralResidual:
 
         extension = [SpectralResidual.predict_next(values[-look_ahead - 2:-1])] * extend_num
         return values + extension
+
+    def calculate_expected_value(self, anomaly_index):
+        values = deanomaly_entire(self.__values__, anomaly_index)
+        length = len(values)
+        fft_coef = np.fft.fft(values)
+        fft_coef.real = [v if length * 3 / 8 >= i or i >= length * 5 / 8 else 0 for i, v in enumerate(fft_coef.real)]
+        fft_coef.imag = [v if length * 3 / 8 >= i or i >= length * 5 / 8 else 0 for i, v in enumerate(fft_coef.imag)]
+        exps = np.fft.ifft(fft_coef)
+        return exps
