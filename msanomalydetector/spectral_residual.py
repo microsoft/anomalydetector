@@ -52,7 +52,6 @@ class SpectralResidual:
     def detect(self):
         if self.__anomaly_frame is None:
             self.__anomaly_frame = self.__detect()
-            print(self.__anomaly_frame.tail())
 
         return self.__anomaly_frame
 
