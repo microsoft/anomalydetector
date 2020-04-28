@@ -71,20 +71,20 @@ class SpectralResidual:
         return pd.concat(anomaly_frames, axis=0, ignore_index=True)
 
     def __detect_core(self, series):
-        values = series['value'].values
-        extended_series = SpectralResidual.extend_series(values.tolist())
-        mags = self.spectral_residual_transform(extended_series)[:len(values)]
+        values = series['value'].tolist()
+        extended_series = SpectralResidual.extend_series(values)
+        mags = self.spectral_residual_transform(extended_series)
         anomaly_scores = self.generate_spectral_score(mags)
         anomaly_frame = pd.DataFrame({Timestamp: series['timestamp'].values,
                                       Value: values,
-                                      Mag: mags,
-                                      AnomalyScore: anomaly_scores})
-        anomaly_frame[IsAnomaly] = np.where(anomaly_frame[AnomalyScore] >= self.__threshold__, True, False)
+                                      Mag: mags[:len(values)],
+                                      AnomalyScore: anomaly_scores[:len(values)]})
+        anomaly_frame[IsAnomaly] = np.where(anomaly_frame[AnomalyScore] > self.__threshold__, True, False)
 
         if self.__detect_mode == DetectMode.anomaly_and_margin:
             anomaly_index = anomaly_frame[anomaly_frame[IsAnomaly]].index.tolist()
             anomaly_frame[ExpectedValue] = self.calculate_expected_value(values, anomaly_index)
-            boundary_units = boundary_helper.calculate_bounary_unit_entire(values,
+            boundary_units = boundary_helper.calculate_boundary_unit_entire(values,
                                                                            anomaly_frame[IsAnomaly].values)
             anomaly_frame[AnomalyScore] = boundary_helper.calculate_anomaly_scores(
                 values=values,
@@ -98,17 +98,17 @@ class SpectralResidual:
             anomaly_frame[LowerBoundary] = anomaly_frame[ExpectedValue].values - margins
             anomaly_frame[UpperBoundary] = anomaly_frame[ExpectedValue].values + margins
             anomaly_frame[IsAnomaly] = np.logical_and(anomaly_frame[IsAnomaly].values,
-                                                      anomaly_frame[LowerBoundary].values <= values)
+                                                      anomaly_frame[LowerBoundary].values > values)
             anomaly_frame[IsAnomaly] = np.logical_and(anomaly_frame[IsAnomaly].values,
-                                                      values <= anomaly_frame[UpperBoundary].values)
+                                                      values > anomaly_frame[UpperBoundary].values)
 
         return anomaly_frame
 
     def generate_spectral_score(self, mags):
         ave_mag = average_filter(mags, n=self.__score_window)
-        ave_mag[np.where(ave_mag <= EPS)] = EPS
+        safeDivisors = np.clip(ave_mag, EPS, ave_mag.max())
 
-        raw_scores = abs(mags - ave_mag) / ave_mag
+        raw_scores = np.abs(mags - ave_mag) / safeDivisors
         scores = np.clip(raw_scores / 10.0, 0, 1.0)
 
         return scores

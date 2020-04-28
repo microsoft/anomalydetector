@@ -85,6 +85,7 @@ def leastsq(x, y):
 
 
 def deanomaly_entire(values, entire_anomalies):
+    deanomaly_data = np.copy(values)
     min_points_to_fit = 4
     for idx in entire_anomalies:
         step = 1
@@ -100,6 +101,6 @@ def deanomaly_entire(values, entire_anomalies):
         if len(fit_values) > 1:
             x, y = tuple(zip(*fit_values))
             a, b = leastsq(x, y)
-            values[idx] = a * idx + b
+            deanomaly_data[idx] = a * idx + b
 
-    return values
+    return deanomaly_data
