@@ -27,7 +27,7 @@ class TestBoundaryUnit(unittest.TestCase):
                 158179.33510638, 158204.58510638, 158179.33510638, 158154.08510638, 158094.33510638, 158034.58510638,
                 158010.08510638, 157985.58510638]
 
-        actual_output = boundary_utils.calculate_bounary_unit_entire(np.asarray(data, dtype=float), is_anomaly)
+        actual_output = boundary_utils.calculate_boundary_unit_entire(np.asarray(data, dtype=float), is_anomaly)
         for e, v in zip(expected_output, actual_output):
             self.assertAlmostEqual(e, v)
 
@@ -59,7 +59,7 @@ class TestBoundaryUnit(unittest.TestCase):
             33969.98958333333, 33969.98958333333, 33972.98958333333, 33975.98958333333, 33972.98958333333,
             33969.98958333333, 33617.48958333333, 33969.98958333333, 33620.48958333333, 33975.98958333333]
 
-        actual_output = boundary_utils.calculate_bounary_unit_entire(np.asarray(data), is_anomaly)
+        actual_output = boundary_utils.calculate_boundary_unit_entire(np.asarray(data), is_anomaly)
         for e, v in zip(expected_output, actual_output):
             self.assertAlmostEqual(e, v)
 

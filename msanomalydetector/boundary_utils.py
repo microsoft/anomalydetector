@@ -51,7 +51,7 @@ def calculate_boundary_unit_last(data):
     return unit
 
 
-def calculate_bounary_unit_entire(data, is_anomaly):
+def calculate_boundary_unit_entire(data, is_anomaly):
     if len(data) == 0:
         return []
 
@@ -65,6 +65,8 @@ def calculate_bounary_unit_entire(data, is_anomaly):
         units = trend_fraction * trends + average_part * (1 - trend_fraction)
     else:
         units = trends
+
+    units = np.clip(units, 1, np.max(units))
 
     if not np.all(np.isfinite(units)):
         raise Exception('Not finite unit values')
@@ -87,6 +89,9 @@ def calculate_margin(unit, sensitivity):
     if unit <= 0:
         raise Exception('unit should be a positive number')
 
+    if sensitivity == 100:
+        return 0.0
+
     return calculate_margin_core(unit, sensitivity)
 
 
@@ -104,7 +109,7 @@ def calculate_anomaly_score(value, expected_value, unit, is_anomaly):
         a, b = margins[lb-1], margins[lb]
         score = lb - 1 + (distance - a) / (b - a)
 
-    return score
+    return score / 100.0
 
 
 def calculate_anomaly_scores(values, expected_values, units, is_anomaly):
