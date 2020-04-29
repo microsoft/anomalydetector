@@ -94,13 +94,15 @@ class SpectralResidual:
             )
 
             margins = [boundary_helper.calculate_margin(u, self.__sensitivity) for u in boundary_units]
+            anomaly_frame['unit'] = boundary_units
 
             anomaly_frame[LowerBoundary] = anomaly_frame[ExpectedValue].values - margins
             anomaly_frame[UpperBoundary] = anomaly_frame[ExpectedValue].values + margins
-            anomaly_frame[IsAnomaly] = np.logical_and(anomaly_frame[IsAnomaly].values,
+            isLowerAnomaly = np.logical_and(anomaly_frame[IsAnomaly].values,
                                                       anomaly_frame[LowerBoundary].values > values)
-            anomaly_frame[IsAnomaly] = np.logical_and(anomaly_frame[IsAnomaly].values,
+            isUpperAnomaly = np.logical_and(anomaly_frame[IsAnomaly].values,
                                                       values > anomaly_frame[UpperBoundary].values)
+            anomaly_frame[IsAnomaly] = np.logical_or(isLowerAnomaly, isUpperAnomaly)
 
         return anomaly_frame
 
