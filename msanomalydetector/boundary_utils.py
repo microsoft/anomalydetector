@@ -66,10 +66,10 @@ def calculate_boundary_unit_entire(data, is_anomaly):
     else:
         units = trends
 
-    units = np.clip(units, 1, np.max(units))
-
     if not np.all(np.isfinite(units)):
         raise Exception('Not finite unit values')
+
+    units = np.clip(units, 1.0, max(np.max(units), 1.0))
 
     return units
 
@@ -78,8 +78,8 @@ def calculate_margin(unit, sensitivity):
 
     def calculate_margin_core(unit, sensitivity):
         lb = int(sensitivity)
-        if lb == sensitivity:
-            return unit * factors[lb]
+        # if lb == sensitivity:
+        #     return unit * factors[lb]
 
         return (factors[lb + 1] + (factors[lb] - factors[lb + 1]) * (1 - sensitivity + lb)) * unit
 
