@@ -89,6 +89,9 @@ def calculate_margin(unit, sensitivity):
     if unit <= 0:
         raise Exception('unit should be a positive number')
 
+    if sensitivity == 100:
+        return 0.0
+
     return calculate_margin_core(unit, sensitivity)
 
 

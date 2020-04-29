@@ -71,7 +71,7 @@ class SpectralResidual:
         return pd.concat(anomaly_frames, axis=0, ignore_index=True)
 
     def __detect_core(self, series):
-        values = series['value'].tolist()
+        values = series['value'].values
         extended_series = SpectralResidual.extend_series(values)
         mags = self.spectral_residual_transform(extended_series)
         anomaly_scores = self.generate_spectral_score(mags)
@@ -181,7 +181,7 @@ class SpectralResidual:
             raise ValueError('look_ahead must be at least 1')
 
         extension = [SpectralResidual.predict_next(values[-look_ahead - 2:-1])] * extend_num
-        return values + extension
+        return np.concatenate((values, extension), axis=0)
 
     @staticmethod
     def calculate_expected_value(values, anomaly_index):
