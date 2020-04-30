@@ -6,7 +6,6 @@ from azureml.studio.core.logger import module_logger as logger
 from azureml.studio.core.io.data_frame_directory import load_data_frame_from_directory, save_data_frame_to_directory
 from azureml.studio.core.utils.column_selection import ColumnSelection
 from azureml.studio.core.error import UserError
-from azureml.studio.internal.error_handler import error_handler
 import sr_detector
 from error_messages import *
 from constants import *
@@ -92,7 +91,6 @@ def invoke(input_path, detect_mode, timestamp_column, value_column, batch_size, 
     save_data_frame_to_directory(output_path, result, compute_stats_in_visualization=compute_stats_in_visualization)
 
 
-@error_handler
 def main():
     parser = argparse.ArgumentParser()
 
