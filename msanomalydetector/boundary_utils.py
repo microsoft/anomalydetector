@@ -105,6 +105,8 @@ def calculate_anomaly_score(value, expected_value, unit, is_anomaly):
 
     if lb == 0:
         score = 0
+    elif lb >= 100:
+        score = 100
     else:
         a, b = margins[lb-1], margins[lb]
         score = lb - 1 + (distance - a) / (b - a)
