@@ -40,7 +40,7 @@ MAX_RATIO = 0.25
 EPS = 1e-8
 THRESHOLD = 0.3
 MAG_WINDOW = 3
-SCORE_WINDOW = 100
+SCORE_WINDOW = 40
 
 
 class DetectMode(Enum):
