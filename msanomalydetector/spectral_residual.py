@@ -24,36 +24,96 @@ ARISING IN ANY WAY OUT OF THE USE OF THE SOFTWARE CODE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 """
 
-from msanomalydetector.util import AnomalyId, AnomalyScore, IsAnomaly, Value, Timestamp, EPS, average_filter
 import pandas as pd
 import numpy as np
 
+from msanomalydetector.util import *
+import msanomalydetector.boundary_utils as boundary_helper
+from msanomalydetector._anomaly_kernel_cython import median_filter
+
 
 class SpectralResidual:
-    def __init__(self, series, threshold, mag_window, score_window):
+    def __init__(self, series, threshold, mag_window, score_window, sensitivity, detect_mode, batch_size):
         self.__series__ = series
+        self.__values__ = self.__series__['value'].tolist()
         self.__threshold__ = threshold
         self.__mag_window = mag_window
         self.__score_window = score_window
+        self.__sensitivity = sensitivity
+        self.__detect_mode = detect_mode
+        self.__anomaly_frame = None
+        self.__batch_size = batch_size
+        if self.__batch_size <= 0:
+            self.__batch_size = len(series)
+
+        self.__batch_size = max(12, self.__batch_size)
+        self.__batch_size = min(len(series), self.__batch_size)
 
     def detect(self):
-        anomaly_scores = self.generate_spectral_score(series=self.__series__['value'].tolist())
-        anomaly_frame = pd.DataFrame({Timestamp: self.__series__['timestamp'],
-                                      Value: self.__series__['value'],
-                                      AnomalyId: list(range(0, len(anomaly_scores))),
-                                      AnomalyScore: anomaly_scores})
-        anomaly_frame[IsAnomaly] = np.where(anomaly_frame[AnomalyScore] >= self.__threshold__, True, False)
-        anomaly_frame.set_index(AnomalyId, inplace=True)
+        if self.__anomaly_frame is None:
+            self.__anomaly_frame = self.__detect()
+
+        return self.__anomaly_frame
+
+    def __detect(self):
+        anomaly_frames = []
+        for i in range(0, len(self.__series__), self.__batch_size):
+            start = i
+            end = i + self.__batch_size
+            end = min(end, len(self.__series__))
+            if end - start >= 12:
+                anomaly_frames.append(self.__detect_core(self.__series__[start:end]))
+            else:
+                ext_start = max(0, end - self.__batch_size)
+                ext_frame = self.__detect_core(self.__series__[ext_start:end])
+                anomaly_frames.append(ext_frame[start-ext_start:])
+
+        return pd.concat(anomaly_frames, axis=0, ignore_index=True)
+
+    def __detect_core(self, series):
+        values = series['value'].values
+        extended_series = SpectralResidual.extend_series(values)
+        mags = self.spectral_residual_transform(extended_series)
+        anomaly_scores = self.generate_spectral_score(mags)
+        anomaly_frame = pd.DataFrame({Timestamp: series['timestamp'].values,
+                                      Value: values,
+                                      Mag: mags[:len(values)],
+                                      AnomalyScore: anomaly_scores[:len(values)]})
+        anomaly_frame[IsAnomaly] = np.where(anomaly_frame[AnomalyScore] > self.__threshold__, True, False)
+
+        if self.__detect_mode == DetectMode.anomaly_and_margin:
+            anomaly_index = anomaly_frame[anomaly_frame[IsAnomaly]].index.tolist()
+            anomaly_frame[ExpectedValue] = self.calculate_expected_value(values, anomaly_index)
+            boundary_units = boundary_helper.calculate_boundary_unit_entire(values,
+                                                                           anomaly_frame[IsAnomaly].values)
+            anomaly_frame[AnomalyScore] = boundary_helper.calculate_anomaly_scores(
+                values=values,
+                expected_values=anomaly_frame[ExpectedValue].values,
+                units=boundary_units,
+                is_anomaly=anomaly_frame[IsAnomaly].values
+            )
+
+            margins = [boundary_helper.calculate_margin(u, self.__sensitivity) for u in boundary_units]
+            anomaly_frame['unit'] = boundary_units
+
+            anomaly_frame[LowerBoundary] = anomaly_frame[ExpectedValue].values - margins
+            anomaly_frame[UpperBoundary] = anomaly_frame[ExpectedValue].values + margins
+            isLowerAnomaly = np.logical_and(anomaly_frame[IsAnomaly].values,
+                                                      anomaly_frame[LowerBoundary].values > values)
+            isUpperAnomaly = np.logical_and(anomaly_frame[IsAnomaly].values,
+                                                      values > anomaly_frame[UpperBoundary].values)
+            anomaly_frame[IsAnomaly] = np.logical_or(isLowerAnomaly, isUpperAnomaly)
 
         return anomaly_frame
 
-    def generate_spectral_score(self, series):
-        extended_series = SpectralResidual.extend_series(series)
-        mag = self.spectral_residual_transform(extended_series)[:len(series)]
-        ave_mag = average_filter(mag, n=self.__score_window)
-        ave_mag[np.where(ave_mag <= EPS)] = EPS
+    def generate_spectral_score(self, mags):
+        ave_mag = average_filter(mags, n=self.__score_window)
+        safeDivisors = np.clip(ave_mag, EPS, ave_mag.max())
 
-        return abs(mag - ave_mag) / ave_mag
+        raw_scores = np.abs(mags - ave_mag) / safeDivisors
+        scores = np.clip(raw_scores / 10.0, 0, 1.0)
+
+        return scores
 
     def spectral_residual_transform(self, values):
         """
@@ -123,4 +183,14 @@ class SpectralResidual:
             raise ValueError('look_ahead must be at least 1')
 
         extension = [SpectralResidual.predict_next(values[-look_ahead - 2:-1])] * extend_num
-        return values + extension
+        return np.concatenate((values, extension), axis=0)
+
+    @staticmethod
+    def calculate_expected_value(values, anomaly_index):
+        values = deanomaly_entire(values, anomaly_index)
+        length = len(values)
+        fft_coef = np.fft.fft(values)
+        fft_coef.real = [v if length * 3 / 8 >= i or i >= length * 5 / 8 else 0 for i, v in enumerate(fft_coef.real)]
+        fft_coef.imag = [v if length * 3 / 8 >= i or i >= length * 5 / 8 else 0 for i, v in enumerate(fft_coef.imag)]
+        exps = np.fft.ifft(fft_coef)
+        return exps.real
