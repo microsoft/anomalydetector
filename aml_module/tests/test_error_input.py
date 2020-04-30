@@ -6,7 +6,8 @@ import numpy as np
 import pandas as pd
 import shutil
 import os
-from azureml.studio.core.io.data_frame_directory import load_data_frame_from_directory, save_data_frame_to_directory
+from azureml.studio.core.io.data_frame_directory import save_data_frame_to_directory
+from azureml.studio.core.error import UserError
 import invoker
 
 
@@ -36,7 +37,7 @@ class TestErrorInput(unittest.TestCase):
     def test_empty_input(self):
         df = pd.DataFrame()
         save_data_frame_to_directory(self.__input_path, df)
-        self.assertRaisesRegexp(Exception, "The dataset should contain at leaslt 12 points to run this module.",
+        self.assertRaisesRegexp(UserError, "The dataset should contain at leaslt 12 points to run this module.",
                                 invoker.invoke,
                                 self.__input_path, self.__detect_mode, self.__timestamp_column, self.__value_column,
                                 self.__batch_size, self.__threshold, self.__sensitivity, self.__append_mode,
@@ -47,7 +48,7 @@ class TestErrorInput(unittest.TestCase):
         df['timestamp'] = 'invalid'
         df['value'] = np.ones(20)
         save_data_frame_to_directory(self.__input_path, df)
-        self.assertRaisesRegexp(Exception, "The timestamp column specified is malformed.",
+        self.assertRaisesRegexp(UserError, "The timestamp column specified is malformed.",
                                 invoker.invoke,
                                 self.__input_path, self.__detect_mode, self.__timestamp_column, self.__value_column,
                                 self.__batch_size, self.__threshold, self.__sensitivity, self.__append_mode,
@@ -59,7 +60,7 @@ class TestErrorInput(unittest.TestCase):
         df['timestamp'] = timestamps
         df['value'] = np.ones(20)
         save_data_frame_to_directory(self.__input_path, df)
-        self.assertRaisesRegexp(Exception, "The timestamp column specified is not in ascending order.",
+        self.assertRaisesRegexp(UserError, "The timestamp column specified is not in ascending order.",
                                 invoker.invoke,
                                 self.__input_path, self.__detect_mode, self.__timestamp_column, self.__value_column,
                                 self.__batch_size, self.__threshold, self.__sensitivity, self.__append_mode,
@@ -70,7 +71,7 @@ class TestErrorInput(unittest.TestCase):
         df['value'] = np.ones(20)
         df['timestamp'] = '2020-01-01'
         save_data_frame_to_directory(self.__input_path, df)
-        self.assertRaisesRegexp(Exception, "The timestamp column specified has duplicated timestamps.",
+        self.assertRaisesRegexp(UserError, "The timestamp column specified has duplicated timestamps.",
                                 invoker.invoke,
                                 self.__input_path, self.__detect_mode, self.__timestamp_column, self.__value_column,
                                 self.__batch_size, self.__threshold, self.__sensitivity, self.__append_mode,
@@ -82,7 +83,7 @@ class TestErrorInput(unittest.TestCase):
         df['timestamp'] = timestamps
         df['value'] = 'invalid'
         save_data_frame_to_directory(self.__input_path, df)
-        self.assertRaisesRegexp(Exception, 'The data in column "value" can not be parsed as float values.',
+        self.assertRaisesRegexp(UserError, 'The data in column "value" can not be parsed as float values.',
                                 invoker.invoke,
                                 self.__input_path, self.__detect_mode, self.__timestamp_column, self.__value_column,
                                 self.__batch_size, self.__threshold, self.__sensitivity, self.__append_mode,
@@ -94,7 +95,7 @@ class TestErrorInput(unittest.TestCase):
         df['timestamp'] = timestamps
         df['value'] = np.nan
         save_data_frame_to_directory(self.__input_path, df)
-        self.assertRaisesRegexp(Exception, 'The data in column "value" contains nan values.',
+        self.assertRaisesRegexp(UserError, 'The data in column "value" contains nan values.',
                                 invoker.invoke,
                                 self.__input_path, self.__detect_mode, self.__timestamp_column, self.__value_column,
                                 self.__batch_size, self.__threshold, self.__sensitivity, self.__append_mode,
@@ -106,7 +107,7 @@ class TestErrorInput(unittest.TestCase):
         df['timestamp'] = timestamps
         df['value'] = 1e200
         save_data_frame_to_directory(self.__input_path, df)
-        self.assertRaisesRegexp(Exception, 'The magnitude of data in column "value" exceeds limitation.',
+        self.assertRaisesRegexp(UserError, 'The magnitude of data in column "value" exceeds limitation.',
                                 invoker.invoke,
                                 self.__input_path, self.__detect_mode, self.__timestamp_column, self.__value_column,
                                 self.__batch_size, self.__threshold, self.__sensitivity, self.__append_mode,
@@ -118,7 +119,7 @@ class TestErrorInput(unittest.TestCase):
         df['timestamp'] = timestamps
         df['value'] = np.sin(np.linspace(1, 10, 10))
         save_data_frame_to_directory(self.__input_path, df)
-        self.assertRaisesRegexp(Exception, "The dataset should contain at leaslt 12 points to run this module.",
+        self.assertRaisesRegexp(UserError, "The dataset should contain at leaslt 12 points to run this module.",
                                 invoker.invoke,
                                 self.__input_path, self.__detect_mode, self.__timestamp_column, self.__value_column,
                                 self.__batch_size, self.__threshold, self.__sensitivity, self.__append_mode,
@@ -130,7 +131,7 @@ class TestErrorInput(unittest.TestCase):
         df['timestamp'] = timestamps
         df['value'] = np.sin(np.linspace(1, 10, 20))
         save_data_frame_to_directory(self.__input_path, df)
-        self.assertRaisesRegexp(Exception, 'The "batchSize" parameter should be at least 12 or 0 that indicates to run all data in a batch',
+        self.assertRaisesRegexp(UserError, 'The "batchSize" parameter should be at least 12 or 0 that indicates to run all data in a batch',
                                 invoker.invoke,
                                 self.__input_path, self.__detect_mode, self.__timestamp_column, self.__value_column,
                                 5, self.__threshold, self.__sensitivity, self.__append_mode,

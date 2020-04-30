@@ -5,6 +5,7 @@ import numpy as np
 from azureml.studio.core.logger import module_logger as logger
 from azureml.studio.core.io.data_frame_directory import load_data_frame_from_directory, save_data_frame_to_directory
 from azureml.studio.core.utils.column_selection import ColumnSelection
+from azureml.studio.core.error import UserError
 from azureml.studio.internal.error_handler import error_handler
 import sr_detector
 from error_messages import *
@@ -36,7 +37,6 @@ def is_timestamp_ascending(timestamps):
     return 0
 
 
-@error_handler
 def invoke(input_path, detect_mode, timestamp_column, value_column, batch_size, threshold, sensitivity,
             appendMode, compute_stats_in_visualization, output_path):
     data_frame_directory = load_data_frame_from_directory(input_path)
@@ -44,10 +44,10 @@ def invoke(input_path, detect_mode, timestamp_column, value_column, batch_size, 
     logger.debug(f"Shape of loaded DataFrame: {data_frame_directory.data.shape}")
 
     if data_frame_directory.data.shape[0] < MIN_POINTS:
-        raise Exception(NotEnoughPoints.format(MIN_POINTS))
+        raise UserError(NotEnoughPoints.format(MIN_POINTS))
 
     if 0 < batch_size < MIN_POINTS:
-        raise Exception(InvalidBatchSize.format(MIN_POINTS))
+        raise UserError(InvalidBatchSize.format(MIN_POINTS))
 
     query_string = unquote(timestamp_column)
     timestamp_column_selector = ColumnSelection(query_string)
@@ -56,13 +56,13 @@ def invoke(input_path, detect_mode, timestamp_column, value_column, batch_size, 
     timestamps = pd.to_datetime(timestamp.iloc[:, 0].values)
 
     if np.any(np.isnat(timestamps)):
-        raise Exception(InvalidTimestamps)
+        raise UserError(InvalidTimestamps)
 
     res = is_timestamp_ascending(timestamps)
     if res == -1:
-        raise Exception(InvalidSeriesOrder)
+        raise UserError(InvalidSeriesOrder)
     elif res == -2:
-        raise Exception(DuplicateSeriesTimestamp)
+        raise UserError(DuplicateSeriesTimestamp)
 
 
     query_string = unquote(value_column)
@@ -73,13 +73,13 @@ def invoke(input_path, detect_mode, timestamp_column, value_column, batch_size, 
         try:
             float_data = data_columns[col].apply(float)
         except Exception as e:
-            raise Exception(InvalidValueFormat.format(col))
+            raise UserError(InvalidValueFormat.format(col))
 
         if not np.all(np.isfinite(float_data)):
-            raise Exception(InvalidSeriesValue.format(col))
+            raise UserError(InvalidSeriesValue.format(col))
 
         if np.any(np.less(float_data, VALUE_LOWER_BOUND)) or np.any(np.greater(float_data, VALUE_UPPER_BOUND)):
-            raise Exception(ValueOverflow.format(col))
+            raise UserError(ValueOverflow.format(col))
 
         data_columns[col] = float_data
 
@@ -92,7 +92,8 @@ def invoke(input_path, detect_mode, timestamp_column, value_column, batch_size, 
     save_data_frame_to_directory(output_path, result, compute_stats_in_visualization=compute_stats_in_visualization)
 
 
-if __name__ == '__main__':
+@error_handler
+def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
@@ -165,3 +166,7 @@ if __name__ == '__main__':
     invoke(args.input_path, args.detect_mode, args.timestamp_column, args.value_column,
         args.batch_size, args.threshold, args.sensitivity, args.append_mode,
         args.compute_stats_in_visualization, args.output_path)
+
+
+if __name__ == '__main__':
+    main()
