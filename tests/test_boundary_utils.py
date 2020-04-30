@@ -73,14 +73,14 @@ class TestBoundaryUnit(unittest.TestCase):
         self.assertAlmostEqual(boundary_utils.calculate_margin(10, 25), 3359.7473532360186)
         self.assertAlmostEqual(boundary_utils.calculate_margin(10, 95), 0.0014700521929794912)
         self.assertAlmostEqual(boundary_utils.calculate_margin(10, 99), 0.00016994687082728675)
-        self.assertAlmostEqual(boundary_utils.calculate_margin(10, 100), 9.767061541798089e-05)
+        self.assertAlmostEqual(boundary_utils.calculate_margin(10, 100), 0.0)
         self.assertAlmostEqual(boundary_utils.calculate_margin(345969.3476, 79.7333448252325), 3762.3800000299298)
 
     def test_calculate_anomaly_score(self):
         self.assertAlmostEqual(boundary_utils.calculate_anomaly_score(10, 15, 5, False), 0)
-        self.assertAlmostEqual(boundary_utils.calculate_anomaly_score(10, 15, 5, True), 50.0)
-        self.assertAlmostEqual(boundary_utils.calculate_anomaly_score(10+1e-5, 10, 1, True), 0.03222890512)
-        self.assertAlmostEqual(boundary_utils.calculate_anomaly_score(10+1e-7, 10, 1, True), 0.0)
+        self.assertAlmostEqual(boundary_utils.calculate_anomaly_score(10, 15, 5, True), 0.5)
+        self.assertAlmostEqual(boundary_utils.calculate_anomaly_score(10+1e-5, 10, 1, True), 0.005884191895350754)
+        self.assertAlmostEqual(boundary_utils.calculate_anomaly_score(10+1e-7, 10, 1, True), 5.884191859812512e-05)
 
 
 if __name__ == '__main__':

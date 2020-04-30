@@ -97,16 +97,16 @@ def calculate_margin(unit, sensitivity):
 
 def calculate_anomaly_score(value, expected_value, unit, is_anomaly):
     if not is_anomaly:
-        return 0
+        return 0.0
 
     distance = np.abs(expected_value - value)
     margins = [calculate_margin(unit, i) for i in range(101)][::-1]
     lb = bisect.bisect_left(margins, distance)
 
     if lb == 0:
-        score = 0
+        return 0
     elif lb >= 100:
-        score = 100
+        return 1.0
     else:
         a, b = margins[lb-1], margins[lb]
         score = lb - 1 + (distance - a) / (b - a)
