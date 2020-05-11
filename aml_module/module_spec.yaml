@@ -1,6 +1,6 @@
-moduleIdentifier:
+amlModuleIdentifier:
   moduleName: Spectral Residual Anomaly Detection
-  moduleVersion: 0.0.6
+  moduleVersion: 0.0.17
   namespace: microsoft.com/office
 metadata:
   annotations:
@@ -44,11 +44,11 @@ inputs:
   - name: Append result columns to output
     description: Append result columns to the original columns as output
     type: Boolean
-    default: true
+    default: True
   - name: Compute stats in visualization
     description: Compute stats in visualization
     type: Boolean
-    default: false
+    default: True
 outputs:
   - name: Output Port
     type: DataFrameDirectory

@@ -1,13 +1,15 @@
 import pandas as pd
 from msanomalydetector import SpectralResidual, DetectMode
+import matplotlib
 import matplotlib.pyplot as plt
 from azureml.studio.core.logger import module_logger as logger
 from azureml.core.run import Run
+import os
 
 
 def log_plot_result(input_df, output_df, col_name, mode):
-    plt.figure(figsize=(20, 10))
-    ax1 = plt.subplot(211)
+    fig = plt.figure(col_name, figsize=(20, 10))
+    ax1 = fig.add_subplot(211)
     if mode == 'AnomalyAndMargin':
         ax1.fill_between(output_df.index, output_df['lowerBoundary'], output_df['upperBoundary'], color='grey', alpha=0.2, zorder=1)
         ax1.plot(output_df.index, output_df['expectedValue'], alpha=0.5, label='expected value', zorder=8)
@@ -17,7 +19,7 @@ def log_plot_result(input_df, output_df, col_name, mode):
     ax1.scatter(anomalies.index, anomalies['value'], c='red', zorder=10)
     ax1.set_title(col_name)
 
-    ax2 = plt.subplot(212)
+    ax2 = fig.add_subplot(212)
     ax2.plot(output_df.index, output_df['mag'])
     ax2.set_title('mag')
 
