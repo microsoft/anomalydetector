@@ -11,7 +11,7 @@ from error_messages import *
 from constants import *
 
 PACKAGE_NAME = 'spectral_residual_anomaly_detection_module'
-VERSION = '0.0.1'
+VERSION = '1.0.0'
 
 
 def str2bool(v):
