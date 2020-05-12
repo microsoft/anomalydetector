@@ -25,11 +25,10 @@ def log_plot_result(input_df, output_df, col_name, mode):
 
     run = Run.get_context()
     run.log_image(col_name, plot=plt)
-    plt.savefig(f'{col_name}.png')
 
 
 def sr_detect(frame, detect_mode, batch_size, threshold, sensitivity):
-    model = SpectralResidual(frame, threshold=threshold, mag_window=3, score_window=21,
+    model = SpectralResidual(frame, threshold=threshold, mag_window=3, score_window=40,
                              sensitivity=sensitivity, detect_mode=DetectMode(detect_mode),  batch_size=batch_size)
     result = model.detect()
 
@@ -48,7 +47,7 @@ def detect(timestamp, data_to_detect, detect_mode, batch_size, threshold=0.3, se
         frame['timestamp'] = timestamp
         frame['value'] = data_to_detect.iloc[:, 0]
         output = sr_detect(frame, detect_mode, batch_size, threshold, sensitivity)
-        log_plot_result(frame, output, 'detect_result', detect_mode)
+        log_plot_result(frame, output, data_to_detect.columns[0], detect_mode)
     else:
         logger.debug(f'detect {column_length} columns')
         output = pd.DataFrame()
