@@ -8,7 +8,7 @@ import os
 
 
 def log_plot_result(input_df, output_df, col_name, mode):
-    fig = plt.figure(col_name, figsize=(20, 10))
+    fig = plt.figure(figsize=(20, 10))
     ax1 = fig.add_subplot(211)
     if mode == 'AnomalyAndMargin':
         ax1.fill_between(output_df.index, output_df['lowerBoundary'], output_df['upperBoundary'], color='grey', alpha=0.2, zorder=1)
@@ -25,6 +25,7 @@ def log_plot_result(input_df, output_df, col_name, mode):
 
     run = Run.get_context()
     run.log_image(col_name, plot=plt)
+    plt.savefig(f'{col_name}.png')
 
 
 def sr_detect(frame, detect_mode, batch_size, threshold, sensitivity):
@@ -47,7 +48,7 @@ def detect(timestamp, data_to_detect, detect_mode, batch_size, threshold=0.3, se
         frame['timestamp'] = timestamp
         frame['value'] = data_to_detect.iloc[:, 0]
         output = sr_detect(frame, detect_mode, batch_size, threshold, sensitivity)
-        log_plot_result(frame, output, data_to_detect.columns[0], detect_mode)
+        log_plot_result(frame, output, 'detect_result', detect_mode)
     else:
         logger.debug(f'detect {column_length} columns')
         output = pd.DataFrame()
@@ -57,8 +58,8 @@ def detect(timestamp, data_to_detect, detect_mode, batch_size, threshold=0.3, se
             frame['timestamp'] = timestamp
             frame['value'] = data_to_detect[col]
             result = sr_detect(frame, detect_mode, batch_size, threshold, sensitivity)
+            log_plot_result(frame, result, col, detect_mode)
             result.columns = [f'{rc}_{col}' for rc in result.columns]
             output = pd.concat((output, result), axis=1)
-            log_plot_result(frame, output, col, detect_mode)
 
     return output
