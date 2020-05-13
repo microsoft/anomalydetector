@@ -5,7 +5,7 @@ amlModuleIdentifier:
 metadata:
   annotations:
     tags: [time series, anomaly detection]
-    contact: AzureML Studio Team <stcamlstudiosg@microsoft.com>
+    contact: Yuanxiang.Ying@microsoft.com
 description: This module implements the spectral residual anomaly detection algorithm for time-series.
 inputs:
   - name: Dataset
