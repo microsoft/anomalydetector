@@ -133,9 +133,10 @@ venv.bak/
 
 # Mac DS_Store files
 .DS_Store
-# VS code 
+# VS code
 .vscode
 
 # Ev2 Generator binaries
 bin
 packages
+debug/

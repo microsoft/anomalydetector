@@ -1,0 +1,13 @@
+name: project_environment
+channels:
+  - defaults
+dependencies:
+  - python=3.6.8
+  - cython=0.29.2
+  - numpy=1.18.1
+  - pip:
+    - pandas==0.25.3
+    - matplotlib==3.1.0
+    - azureml-defaults
+    - azureml-designer-core==0.0.31
+    - git+https://github.com/microsoft/anomalydetector.git@1.1

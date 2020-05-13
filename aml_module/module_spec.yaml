@@ -1,0 +1,72 @@
+amlModuleIdentifier:
+  moduleName: Spectral Residual Anomaly Detection
+  moduleVersion: 1.0.0
+  namespace: microsoft.com/office
+metadata:
+  annotations:
+    tags: [time series, anomaly detection]
+    contact: AzureML Studio Team <stcamlstudiosg@microsoft.com>
+description: This module implements the spectral residual anomaly detection algorithm for time-series.
+inputs:
+  - name: Dataset
+    type: DataFrameDirectory
+  - name: Detect Mode
+    type: Enum
+    default: AnomalyOnly
+    description: Specify the detection mode.
+    options: [AnomalyOnly, AnomalyAndMargin]
+  - name: Timestamp Column
+    type: ColumnPicker
+    description: Choose the column that contains timestamps.
+    columnPickerFor: Dataset
+    singleColumnSelection: true
+  - name: Value Column
+    type: ColumnPicker
+    description: Choose the column that contains values.
+    columnPickerFor: Dataset
+  - name: Batch Size
+    type: Integer
+    default: 2000
+    min: 0
+    description: This parameter specifies the size of each batch that the detection is perfomed, 0 indicates to run all data in a single batch.
+  - name: Threshold
+    type: Float
+    default: 0.3
+    min: 0.0
+    max: 1.0
+    description: This parameter specifies the threshold anomaly score that a point is judged as anomaly.
+  - name: Sensitivity
+    type: Float
+    default: 99
+    min: 0.0
+    max: 100.0
+    description: This parameter is used in AnomalyAndMargin mode to control the width of margin.
+  - name: Append result columns to output
+    description: Append result columns to the original columns as output
+    type: Boolean
+    default: True
+  - name: Compute stats in visualization
+    description: Compute stats in visualization
+    type: Boolean
+    default: True
+outputs:
+  - name: Output Port
+    type: DataFrameDirectory
+implementation:
+  container:
+    amlEnvironment:
+      python:
+        condaDependenciesFile: conda.yaml
+    command: [python, invoker.py]
+    args: [
+      --input, {inputPath: Dataset },
+      --detect-mode, { inputValue: Detect Mode },
+      --timestamp-column, { inputValue: Timestamp Column },
+      --value-column, { inputValue: Value Column },
+      --batch-size, { inputValue: Batch Size },
+      --threshold, { inputValue: Threshold },
+      --sensitivity, { inputValue: Sensitivity },
+      --append-mode, { inputValue: Append result columns to output },
+      --compute-stats-in-visualization, { inputValue: Compute stats in visualization },
+      --output, { outputPath: Output Port },
+    ]
