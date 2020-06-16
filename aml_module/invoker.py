@@ -15,6 +15,7 @@ from constants import *
 PACKAGE_NAME = 'spectral_residual_anomaly_detection_module'
 VERSION = '1.0.0'
 
+
 def str2bool(v):
     if isinstance(v, bool):
         return v
