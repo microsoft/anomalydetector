@@ -2,6 +2,8 @@ import argparse
 from urllib.parse import unquote
 import pandas as pd
 import numpy as np
+import os
+import shutil
 from azureml.studio.core.logger import module_logger as logger
 from azureml.studio.core.io.data_frame_directory import load_data_frame_from_directory, save_data_frame_to_directory
 from azureml.studio.core.utils.column_selection import ColumnSelection
@@ -12,7 +14,6 @@ from constants import *
 
 PACKAGE_NAME = 'spectral_residual_anomaly_detection_module'
 VERSION = '1.0.0'
-
 
 def str2bool(v):
     if isinstance(v, bool):
@@ -38,9 +39,19 @@ def is_timestamp_ascending(timestamps):
 
 def invoke(input_path, detect_mode, timestamp_column, value_column, batch_size, threshold, sensitivity,
             appendMode, compute_stats_in_visualization, output_path):
-    data_frame_directory = load_data_frame_from_directory(input_path)
+    surfix = input_path.split('/')[-1].split('.')[-1]
 
+    if surfix != 'csv':
+        logger.debug('CSV file not found')
+        raise UserError(InvalidInputType)
+
+    df = pd.read_csv(input_path)
+    save_data_frame_to_directory(output_path, df)
+    data_frame_directory = load_data_frame_from_directory(output_path)
     logger.debug(f"Shape of loaded DataFrame: {data_frame_directory.data.shape}")
+
+    if os.path.exists(output_path):
+        shutil.rmtree(output_path)
 
     if data_frame_directory.data.shape[0] < MIN_POINTS:
         raise UserError(NotEnoughPoints.format(MIN_POINTS))

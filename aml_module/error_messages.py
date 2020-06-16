@@ -7,3 +7,4 @@ ValueOverflow = '''The magnitude of data in column "{0}" exceeds limitation.'''
 NotEnoughPoints = '''The dataset should contain at leaslt {0} points to run this module.'''
 InvalidBatchSize = '''The "batchSize" parameter should be at least {0} or 0 ''' \
                    '''that indicates to run all data in a batch.'''
+InvalidInputType = '''The input data type should be AnyDirectory'''
