@@ -12,7 +12,7 @@ import invoker
 
 class TestErrorInput(unittest.TestCase):
     def setUp(self):
-        self.__input_path = '../../samples/sample_error.csv'
+        self.__input_path = './error_test_input_file.csv'
         self.__detect_mode = 'AnomalyOnly'
         self.__timestamp_column = '%7B%22isFilter%22%3Atrue%2C%22rules%22%3A%5B%7B%22exclude%22%3Afalse%2C%22ruleType%22%3A%22ColumnNames%22%2C%22columns%22%3A%5B%22timestamp%22%5D%7D%5D%7D'
         self.__value_column = '%7B%22isFilter%22%3Atrue%2C%22rules%22%3A%5B%7B%22exclude%22%3Afalse%2C%22ruleType%22%3A%22ColumnNames%22%2C%22columns%22%3A%5B%22value%22%5D%7D%5D%7D'

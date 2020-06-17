@@ -9,7 +9,7 @@ metadata:
 description: This module implements the spectral residual anomaly detection algorithm for time-series.
 inputs:
   - name: Dataset
-    type: AnyDirectory
+    type: DataFrameDirectory
   - name: Detect Mode
     type: Enum
     default: AnomalyOnly
