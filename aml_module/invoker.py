@@ -111,7 +111,7 @@ def invoke(input_path, detect_mode, timestamp_column, value_column, batch_size, 
     if not os.path.isdir(output_path):
         os.mkdir(output_path)
 
-    result.to_csv(f"{output_path}/output.csv", index=False)
+    result.to_parquet(f"{output_path}/output.parquet", index=False)
 
 
 def main():

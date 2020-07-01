@@ -63,7 +63,7 @@ class TestErrorInput(unittest.TestCase):
         df.to_csv(self.__input_csv_file, index=False)
         invoker.invoke(self.__input_csv_file, self.__detect_mode, self.__timestamp_column, self.__value_column,
                         self.__batch_size, self.__threshold, self.__sensitivity, self.__append_mode, self.__output_path)
-        result = pd.read_csv(f"{self.__output_path}/output.csv")
+        result = pd.read_parquet(f"{self.__output_path}/output.parquet")
         self.assertEqual(result.shape[0], 200)
         self.assertTrue('value' in result.columns)
         self.assertTrue('isAnomaly' in result.columns)
@@ -76,7 +76,7 @@ class TestErrorInput(unittest.TestCase):
         self.generate_input_folder()
         invoker.invoke(self.__input_path, self.__detect_mode, self.__timestamp_column, self.__value_column,
                         self.__batch_size, self.__threshold, self.__sensitivity, self.__append_mode, self.__output_path)
-        result = pd.read_csv(f"{self.__output_path}/output.csv")
+        result = pd.read_parquet(f"{self.__output_path}/output.parquet")
         self.assertEqual(result.shape[0], 600)
         self.assertTrue('value' in result.columns)
         self.assertTrue('isAnomaly' in result.columns)
@@ -90,7 +90,7 @@ class TestErrorInput(unittest.TestCase):
         df.to_parquet(self.__input_parquet_file, index=False)
         invoker.invoke(self.__input_parquet_file, self.__detect_mode, self.__timestamp_column, self.__value_column,
                         self.__batch_size, self.__threshold, self.__sensitivity, self.__append_mode, self.__output_path)
-        result = pd.read_csv(f"{self.__output_path}/output.csv")
+        result = pd.read_parquet(f"{self.__output_path}/output.parquet")
         self.assertEqual(result.shape[0], 200)
         self.assertTrue('value' in result.columns)
         self.assertTrue('isAnomaly' in result.columns)
@@ -103,7 +103,7 @@ class TestErrorInput(unittest.TestCase):
         self.generate_input_folder('parquet')
         invoker.invoke(self.__input_path, self.__detect_mode, self.__timestamp_column, self.__value_column,
                         self.__batch_size, self.__threshold, self.__sensitivity, self.__append_mode, self.__output_path)
-        result = pd.read_csv(f"{self.__output_path}/output.csv")
+        result = pd.read_parquet(f"{self.__output_path}/output.parquet")
         self.assertEqual(result.shape[0], 600)
         self.assertTrue('value' in result.columns)
         self.assertTrue('isAnomaly' in result.columns)
@@ -117,7 +117,7 @@ class TestErrorInput(unittest.TestCase):
         df.to_csv(self.__input_csv_file, index=False)
         invoker.invoke(self.__input_csv_file, "AnomalyAndMargin", self.__timestamp_column, self.__value_column,
                         self.__batch_size, self.__threshold, self.__sensitivity, self.__append_mode, self.__output_path)
-        result = pd.read_csv(f"{self.__output_path}/output.csv")
+        result = pd.read_parquet(f"{self.__output_path}/output.parquet")
         self.assertEqual(result.shape[0], 200)
         self.assertTrue('value' in result.columns)
         self.assertTrue('isAnomaly' in result.columns)
@@ -130,7 +130,7 @@ class TestErrorInput(unittest.TestCase):
         self.generate_input_folder()
         invoker.invoke(self.__input_path, "AnomalyAndMargin", self.__timestamp_column, self.__value_column,
                         self.__batch_size, self.__threshold, self.__sensitivity, self.__append_mode, self.__output_path)
-        result = pd.read_csv(f"{self.__output_path}/output.csv")
+        result = pd.read_parquet(f"{self.__output_path}/output.parquet")
         self.assertEqual(result.shape[0], 600)
         self.assertTrue('value' in result.columns)
         self.assertTrue('isAnomaly' in result.columns)
@@ -144,7 +144,7 @@ class TestErrorInput(unittest.TestCase):
         df.to_parquet(self.__input_parquet_file, index=False)
         invoker.invoke(self.__input_parquet_file, "AnomalyAndMargin", self.__timestamp_column, self.__value_column,
                         self.__batch_size, self.__threshold, self.__sensitivity, self.__append_mode, self.__output_path)
-        result = pd.read_csv(f"{self.__output_path}/output.csv")
+        result = pd.read_parquet(f"{self.__output_path}/output.parquet")
         self.assertEqual(result.shape[0], 200)
         self.assertTrue('value' in result.columns)
         self.assertTrue('isAnomaly' in result.columns)
@@ -157,7 +157,7 @@ class TestErrorInput(unittest.TestCase):
         self.generate_input_folder('parquet')
         invoker.invoke(self.__input_path, "AnomalyAndMargin", self.__timestamp_column, self.__value_column,
                         self.__batch_size, self.__threshold, self.__sensitivity, self.__append_mode, self.__output_path)
-        result = pd.read_csv(f"{self.__output_path}/output.csv")
+        result = pd.read_parquet(f"{self.__output_path}/output.parquet")
         self.assertEqual(result.shape[0], 600)
         self.assertTrue('value' in result.columns)
         self.assertTrue('isAnomaly' in result.columns)
@@ -171,7 +171,7 @@ class TestErrorInput(unittest.TestCase):
         df.to_csv(self.__input_csv_file, index=False)
         invoker.invoke(self.__input_csv_file, "AnomalyAndMargin", self.__timestamp_column, self.__value_column,
                         66, self.__threshold, self.__sensitivity, self.__append_mode, self.__output_path)
-        result = pd.read_csv(f"{self.__output_path}/output.csv")
+        result = pd.read_parquet(f"{self.__output_path}/output.parquet")
         self.assertEqual(result.shape[0], 200)
         self.assertTrue('value' in result.columns)
         self.assertTrue('isAnomaly' in result.columns)
@@ -184,7 +184,7 @@ class TestErrorInput(unittest.TestCase):
         self.generate_input_folder()
         invoker.invoke(self.__input_path, "AnomalyAndMargin", self.__timestamp_column, self.__value_column,
                         66, self.__threshold, self.__sensitivity, self.__append_mode, self.__output_path)
-        result = pd.read_csv(f"{self.__output_path}/output.csv")
+        result = pd.read_parquet(f"{self.__output_path}/output.parquet")
         self.assertEqual(result.shape[0], 600)
         self.assertTrue('value' in result.columns)
         self.assertTrue('isAnomaly' in result.columns)
@@ -198,7 +198,7 @@ class TestErrorInput(unittest.TestCase):
         df.to_parquet(self.__input_parquet_file, index=False)
         invoker.invoke(self.__input_parquet_file, "AnomalyAndMargin", self.__timestamp_column, self.__value_column,
                         66, self.__threshold, self.__sensitivity, self.__append_mode, self.__output_path)
-        result = pd.read_csv(f"{self.__output_path}/output.csv")
+        result = pd.read_parquet(f"{self.__output_path}/output.parquet")
         self.assertEqual(result.shape[0], 200)
         self.assertTrue('value' in result.columns)
         self.assertTrue('isAnomaly' in result.columns)
@@ -211,7 +211,7 @@ class TestErrorInput(unittest.TestCase):
         self.generate_input_folder('parquet')
         invoker.invoke(self.__input_path, "AnomalyAndMargin", self.__timestamp_column, self.__value_column,
                         66, self.__threshold, self.__sensitivity, self.__append_mode, self.__output_path)
-        result = pd.read_csv(f"{self.__output_path}/output.csv")
+        result = pd.read_parquet(f"{self.__output_path}/output.parquet")
         self.assertEqual(result.shape[0], 600)
         self.assertTrue('value' in result.columns)
         self.assertTrue('isAnomaly' in result.columns)

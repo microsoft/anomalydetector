@@ -7,6 +7,7 @@ dependencies:
   - numpy=1.18.1
   - pip:
     - pandas==0.25.3
+    - pyarrow==0.16.0
     - matplotlib==3.1.0
     - azureml-defaults
     - git+https://github.com/microsoft/anomalydetector.git@1.1
