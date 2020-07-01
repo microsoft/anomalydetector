@@ -2,7 +2,7 @@ import pandas as pd
 from msanomalydetector import SpectralResidual, DetectMode
 import matplotlib
 import matplotlib.pyplot as plt
-from azureml.studio.core.logger import module_logger as logger
+import logging
 from azureml.core.run import Run
 import os
 
@@ -41,7 +41,7 @@ def detect(timestamp, data_to_detect, detect_mode, batch_size, threshold=0.3, se
 
     column_length = len(data_to_detect.columns)
     if column_length == 1:
-        logger.debug('single column to detect')
+        logging.debug('single column to detect')
 
         frame = pd.DataFrame(columns=['timestamp', 'value'])
         frame['timestamp'] = timestamp
@@ -49,7 +49,7 @@ def detect(timestamp, data_to_detect, detect_mode, batch_size, threshold=0.3, se
         output = sr_detect(frame, detect_mode, batch_size, threshold, sensitivity)
         log_plot_result(frame, output, data_to_detect.columns[0], detect_mode)
     else:
-        logger.debug(f'detect {column_length} columns')
+        logging.debug(f'detect {column_length} columns')
         output = pd.DataFrame()
 
         for col in data_to_detect.columns:
