@@ -1,6 +1,6 @@
 amlModuleIdentifier:
   moduleName: Spectral Residual Anomaly Detection
-  moduleVersion: 1.0.5
+  moduleVersion: 1.0.6
   namespace: microsoft.com/office
 metadata:
   annotations:
@@ -45,10 +45,6 @@ inputs:
     description: Append result columns to the original columns as output
     type: Boolean
     default: True
-  - name: Compute stats in visualization
-    description: Compute stats in visualization
-    type: Boolean
-    default: True
 outputs:
   - name: Output Port
     type: AnyDirectory
@@ -67,6 +63,5 @@ implementation:
       --threshold, { inputValue: Threshold },
       --sensitivity, { inputValue: Sensitivity },
       --append-mode, { inputValue: Append result columns to output },
-      --compute-stats-in-visualization, { inputValue: Compute stats in visualization },
       --output, { outputPath: Output Port },
     ]

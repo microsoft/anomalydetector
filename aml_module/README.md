@@ -62,7 +62,6 @@ az ml module register --spec-file=https://github.com/microsoft/anomalydetector/b
 * `Threshold`. In AnomalyOnly mode, points are detected as anomaly if its `score` is greater than threshold. In AnomalyAndMargin mode, this parameter and `sensitivity` works together to filter anomaly.
 * `Sensitivity`. This parameter is used in AnomalyAndMargin mode to determine the range of the boundaries.
 * `Append result column to output`. If this parameter is set, the input data set will be output together with the results. Otherwise, only the results will be output.
-* `Compute stats in visualization`. If this parameter is set, the stats of output dataset will be calcualted.
 
 ## Output Specification
 The output data set will contain a fraction of the following columns according to the `Detect Mode` parameter. If multiple value colums are selected, the result columns will add value column names as postfix.

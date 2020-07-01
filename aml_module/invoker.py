@@ -57,7 +57,7 @@ def read_as_dataframe(input_path: str):
 
 
 def invoke(input_path, detect_mode, timestamp_column, value_column, batch_size, threshold, sensitivity,
-            appendMode, compute_stats_in_visualization, output_path):
+            appendMode, output_path):
     df = read_as_dataframe(input_path)
     logging.info(f"Shape of loaded DataFrame: {df.shape}")
 
@@ -159,11 +159,6 @@ def main():
     )
 
     parser.add_argument(
-        '--compute-stats-in-visualization', type=str2bool, default=False,
-        help='Enable this parameter to get stats visualization.'
-    )
-
-    parser.add_argument(
         '--output-path',
         help='Output path'
     )
@@ -181,12 +176,10 @@ def main():
     logging.debug(f"threshold: {args.threshold}")
     logging.debug(f"sensitivity: {args.sensitivity}")
     logging.debug(f"appendMode: {args.append_mode}")
-    logging.debug(f"appendMode: {args.compute_stats_in_visualization}")
     logging.debug(f"output path: {args.output_path}")
 
     invoke(args.input_path, args.detect_mode, args.timestamp_column, args.value_column,
-        args.batch_size, args.threshold, args.sensitivity, args.append_mode,
-        args.compute_stats_in_visualization, args.output_path)
+        args.batch_size, args.threshold, args.sensitivity, args.append_mode, args.output_path)
 
 
 if __name__ == '__main__':

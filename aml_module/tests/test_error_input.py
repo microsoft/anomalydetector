@@ -39,7 +39,7 @@ class TestErrorInput(unittest.TestCase):
                                 invoker.invoke,
                                 self.__input_path, self.__detect_mode, self.__timestamp_column, self.__value_column,
                                 self.__batch_size, self.__threshold, self.__sensitivity, self.__append_mode,
-                                self.compute_stats_in_visualization, self.__output_path)
+                                self.__output_path)
 
     def test_invalid_timestamp(self):
         df = pd.DataFrame()
@@ -50,7 +50,7 @@ class TestErrorInput(unittest.TestCase):
                                 invoker.invoke,
                                 self.__input_path, self.__detect_mode, self.__timestamp_column, self.__value_column,
                                 self.__batch_size, self.__threshold, self.__sensitivity, self.__append_mode,
-                                self.compute_stats_in_visualization, self.__output_path)
+                                self.__output_path)
 
     def test_invalid_series_order(self):
         df = pd.DataFrame()
@@ -62,7 +62,7 @@ class TestErrorInput(unittest.TestCase):
                                 invoker.invoke,
                                 self.__input_path, self.__detect_mode, self.__timestamp_column, self.__value_column,
                                 self.__batch_size, self.__threshold, self.__sensitivity, self.__append_mode,
-                                self.compute_stats_in_visualization, self.__output_path)
+                                self.__output_path)
 
     def test_dunplicate_sereis(self):
         df = pd.DataFrame()
@@ -73,7 +73,7 @@ class TestErrorInput(unittest.TestCase):
                                 invoker.invoke,
                                 self.__input_path, self.__detect_mode, self.__timestamp_column, self.__value_column,
                                 self.__batch_size, self.__threshold, self.__sensitivity, self.__append_mode,
-                                self.compute_stats_in_visualization, self.__output_path)
+                                self.__output_path)
 
     def test_invalid_value_format(self):
         df = pd.DataFrame()
@@ -85,7 +85,7 @@ class TestErrorInput(unittest.TestCase):
                                 invoker.invoke,
                                 self.__input_path, self.__detect_mode, self.__timestamp_column, self.__value_column,
                                 self.__batch_size, self.__threshold, self.__sensitivity, self.__append_mode,
-                                self.compute_stats_in_visualization, self.__output_path)
+                                self.__output_path)
 
     def test_invalid_series_value(self):
         df = pd.DataFrame()
@@ -97,7 +97,7 @@ class TestErrorInput(unittest.TestCase):
                                 invoker.invoke,
                                 self.__input_path, self.__detect_mode, self.__timestamp_column, self.__value_column,
                                 self.__batch_size, self.__threshold, self.__sensitivity, self.__append_mode,
-                                self.compute_stats_in_visualization, self.__output_path)
+                                self.__output_path)
 
     def test_value_overflow(self):
         df = pd.DataFrame()
@@ -109,7 +109,7 @@ class TestErrorInput(unittest.TestCase):
                                 invoker.invoke,
                                 self.__input_path, self.__detect_mode, self.__timestamp_column, self.__value_column,
                                 self.__batch_size, self.__threshold, self.__sensitivity, self.__append_mode,
-                                self.compute_stats_in_visualization, self.__output_path)
+                                self.__output_path)
 
     def test_not_enough_points(self):
         df = pd.DataFrame()
@@ -121,7 +121,7 @@ class TestErrorInput(unittest.TestCase):
                                 invoker.invoke,
                                 self.__input_path, self.__detect_mode, self.__timestamp_column, self.__value_column,
                                 self.__batch_size, self.__threshold, self.__sensitivity, self.__append_mode,
-                                self.compute_stats_in_visualization, self.__output_path)
+                                self.__output_path)
 
     def test_invalid_batch_size(self):
         df = pd.DataFrame()
@@ -132,8 +132,7 @@ class TestErrorInput(unittest.TestCase):
         self.assertRaisesRegexp(Exception, 'The "batchSize" parameter should be at least 12 or 0 that indicates to run all data in a batch',
                                 invoker.invoke,
                                 self.__input_path, self.__detect_mode, self.__timestamp_column, self.__value_column,
-                                5, self.__threshold, self.__sensitivity, self.__append_mode,
-                                self.compute_stats_in_visualization, self.__output_path)
+                                5, self.__threshold, self.__sensitivity, self.__append_mode, self.__output_path)
 
     def test_timestamp_column_missing(self):
         df = pd.DataFrame()
@@ -145,7 +144,7 @@ class TestErrorInput(unittest.TestCase):
                                 invoker.invoke,
                                 self.__input_path, self.__detect_mode, self.__timestamp_column, self.__value_column,
                                 self.__batch_size, self.__threshold, self.__sensitivity, self.__append_mode,
-                                self.compute_stats_in_visualization, self.__output_path)
+                                self.__output_path)
 
     def test_value_column_missing(self):
         df = pd.DataFrame()
@@ -157,7 +156,7 @@ class TestErrorInput(unittest.TestCase):
                                 invoker.invoke,
                                 self.__input_path, self.__detect_mode, self.__timestamp_column, self.__value_column,
                                 self.__batch_size, self.__threshold, self.__sensitivity, self.__append_mode,
-                                self.compute_stats_in_visualization, self.__output_path)
+                                self.__output_path)
 
 
 if __name__ == '__main__':
