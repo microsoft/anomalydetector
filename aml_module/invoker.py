@@ -1,4 +1,6 @@
 import argparse
+import os
+import pathlib
 from urllib.parse import unquote
 import pandas as pd
 import numpy as np
@@ -36,23 +38,47 @@ def is_timestamp_ascending(timestamps):
     return 0
 
 
+def read_as_dataframe(input_path: str):
+    if os.path.isfile(input_path):
+        if input_path.endswith(".csv"):
+            return pd.read_csv(input_path)
+        elif input_path.endswith(".parquet"):
+            return pd.read_parquet(input_path)
+    else:
+        dir_path = pathlib.Path(input_path)
+
+        csv_files = list(dir_path.glob("**/*.csv"))
+        if csv_files:
+            df_from_csv_files = (pd.read_csv(f) for f in csv_files)
+            return pd.concat(df_from_csv_files, ignore_index=True)
+
+        parquet_files = list(dir_path.glob("**/*.parquet"))
+        if parquet_files:
+            df_from_parquet_files = (pd.read_parquet(f) for f in parquet_files)
+            return pd.concat(df_from_parquet_files, ignore_index=True)
+
+    raise ValueError(f"Failed to read path: {input_path}")
+
+
 def invoke(input_path, detect_mode, timestamp_column, value_column, batch_size, threshold, sensitivity,
             appendMode, compute_stats_in_visualization, output_path):
-    data_frame_directory = load_data_frame_from_directory(input_path)
+    # column name not exist in input file ERROR
+    df = read_as_dataframe(input_path)
 
-    logger.debug(f"Shape of loaded DataFrame: {data_frame_directory.data.shape}")
+    logger.debug(f"Shape of loaded DataFrame: {df.shape}")
 
-    if data_frame_directory.data.shape[0] < MIN_POINTS:
+    if df.shape[0] < MIN_POINTS:
         raise UserError(NotEnoughPoints.format(MIN_POINTS))
 
     if 0 < batch_size < MIN_POINTS:
         raise UserError(InvalidBatchSize.format(MIN_POINTS))
 
-    query_string = unquote(timestamp_column)
-    timestamp_column_selector = ColumnSelection(query_string)
-    timestamp = timestamp_column_selector.select_dataframe_directory(data_frame_directory).data
+    # query_string = unquote(timestamp_column)
+    # timestamp_column_selector = ColumnSelection(query_string)
+    # timestamp = timestamp_column_selector.select_dataframe_directory(data_frame_directory).data
+    # timestamps = pd.to_datetime(timestamp.iloc[:, 0].values)
 
-    timestamps = pd.to_datetime(timestamp.iloc[:, 0].values)
+    timestamps = pd.to_datetime(df[timestamp_column])
 
     if np.any(np.isnat(timestamps)):
         raise UserError(InvalidTimestamps)
@@ -64,11 +90,13 @@ def invoke(input_path, detect_mode, timestamp_column, value_column, batch_size, 
         raise UserError(DuplicateSeriesTimestamp)
 
 
-    query_string = unquote(value_column)
-    data_column_selector = ColumnSelection(query_string)
-    data_columns = data_column_selector.select_dataframe_directory(data_frame_directory).data
+    # query_string = unquote(value_column)
+    # data_column_selector = ColumnSelection(query_string)
+    # data_columns = data_column_selector.select_dataframe_directory(data_frame_directory).data
 
-    for col in data_columns.columns:
+    data_columns = df[value_column]
+
+    for col in data_columns:
         try:
             float_data = data_columns[col].apply(float)
         except Exception as e:
@@ -86,9 +114,11 @@ def invoke(input_path, detect_mode, timestamp_column, value_column, batch_size, 
                                 batch_size=batch_size, threshold=threshold, sensitivity=sensitivity)
 
     if appendMode is True:
-        result = pd.merge(data_frame_directory.data, result, left_index=True, right_index=True)
+        result = pd.merge(df, result, left_index=True, right_index=True)
 
-    save_data_frame_to_directory(output_path, result, compute_stats_in_visualization=compute_stats_in_visualization)
+    result.to_csv(f"{output_path}/output.csv")
+
+    # save_data_frame_to_directory(output_path, result, compute_stats_in_visualization=compute_stats_in_visualization)
 
 
 def main():
@@ -96,7 +126,7 @@ def main():
 
     parser.add_argument(
         '--input-path',
-        help='Input Dataframe path'
+        help='Input file path'
     )
 
     parser.add_argument(
@@ -107,12 +137,12 @@ def main():
 
     parser.add_argument(
         '--timestamp-column',
-        help='Choose the column that contains timestamps.'
+        help='This parameter specifies the column that contains timestamps.'
     )
 
     parser.add_argument(
         '--value-column',
-        help='Choose the column that contains values.'
+        help='This parameter specifies the column that contains values.'
     )
 
     parser.add_argument(
@@ -142,7 +172,7 @@ def main():
 
     parser.add_argument(
         '--output-path',
-        help='Output Dataframe path'
+        help='Output path'
     )
 
     args, _ = parser.parse_known_args()

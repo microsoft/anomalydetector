@@ -9,19 +9,19 @@ metadata:
 description: This module implements the spectral residual anomaly detection algorithm for time-series.
 inputs:
   - name: Dataset
-    type: DataFrameDirectory
+    type: AnyDirectory
   - name: Detect Mode
     type: Enum
     default: AnomalyOnly
     description: Specify the detection mode.
     options: [AnomalyOnly, AnomalyAndMargin]
   - name: Timestamp Column
-    type: ColumnPicker
+    type: String
     description: Choose the column that contains timestamps.
     columnPickerFor: Dataset
     singleColumnSelection: true
   - name: Value Column
-    type: ColumnPicker
+    type: String
     description: Choose the column that contains values.
     columnPickerFor: Dataset
   - name: Batch Size
@@ -51,7 +51,7 @@ inputs:
     default: True
 outputs:
   - name: Output Port
-    type: DataFrameDirectory
+    type: AnyDirectory
 implementation:
   container:
     amlEnvironment:
