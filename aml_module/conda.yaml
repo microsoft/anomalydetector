@@ -6,11 +6,10 @@ dependencies:
   - cython=0.29.2
   - numpy=1.18.1
   - pip:
-    - pandas==0.25.3
-    - pyarrow==0.16.0
-    - matplotlib==3.1.0
-    - azureml-defaults
-    - git+https://github.com/microsoft/anomalydetector.git@1.1
     - azureml-sdk==0.1.0.*
     - --index-url https://azuremlsdktestpypi.azureedge.net/dev/aml/office/134157926D8F
     - --extra-index-url https://pypi.org/simple
+    - pandas==0.25.3
+    - pyarrow==0.16.0
+    - matplotlib==3.1.0
+    - git+https://github.com/microsoft/anomalydetector.git@1.1
