@@ -1,6 +1,6 @@
 amlModuleIdentifier:
   moduleName: Spectral Residual Anomaly Detection
-  moduleVersion: 1.0.10
+  moduleVersion: 1.0.0
   namespace: microsoft.com/office
 metadata:
   annotations:
