@@ -1,57 +1,19 @@
-# Spectral Residual Anomaly Detection Module
+# Spectral Residual Anomaly Detection Component
 
 This folder specifies the Spectral Residual Anomaly Detection module that can be used in Azure Machine Learning designer. The details of the Spectral Residual algorithm can be found at https://arxiv.org/pdf/1906.03821.pdf.
 
-## How to install
-1. Install [Azure PowerShell](https://docs.microsoft.com/en-us/powershell/azure/install-az-ps?view=azps-3.8.0) if you don't have one.
-2. Install the azure-cli-ml extension
-```
-# Uninstall azure-cli-ml (the `az ml` commands)
-az extension remove -n azure-cli-ml
+## How to create a new component in Azure Machine Learning
 
-# Install local version of azure-cli-ml (which includes `az ml module` commands)
-az extension add --source https://azuremlsdktestpypi.azureedge.net/CLI-SDK-Runners-Validation/13766063/azure_cli_ml-0.1.0.13766063-py3-none-any.whl --pip-extra-index-urls https://azuremlsdktestpypi.azureedge.net/CLI-SDK-Runners-Validation/13766063 --yes
-```
+Follow [this tutorial](https://github.com/Azure/AzureMachineLearningGallery/blob/main/tutorial/tutorial1-use-existing-components.md) to create a new component in your Azure Machine Learning workspace. 
 
-3. Prepare the environment
-```
-# Login
-az login
-# Show account list, verify your default subscription
-az account list --output table
-# Set your default subscription if needed
-az account set -s "Your subscription name"
+After creating component successfully, you can use it in Azure Machine Learning designer.
 
-# Configure workspace name and resource name
-# NOTE: This will set workspace setting only to the current folder. If you change to another folder, you need to set this again.
-az ml folder attach -w "Your workspace name" -g "Your resource group name"
+## Component Specification
 
-# Set default namespace of module to avoid specifying to each of the following commands
-az configure --defaults module_namespace=microsoft.com/office
-```
+This section describes the specification of [Spectral Residual Anomaly Detection Component](./ad_component.yaml).
 
-4. Set default output format to table to improve experience
-```
-az configure
-...
-Do you wish to change your settings? (y/N): y
-What default output format would you like?
- [1] json - JSON formatted output that most closely matches API responses.
- [2] jsonc - Colored JSON formatted output that most closely matches API responses.
- [3] table - Human-readable output format.
- [4] tsv - Tab- and Newline-delimited. Great for GREP, AWK, etc.
- [5] yaml - YAML formatted output. An alternative to JSON. Great for configuration files.
- [6] yamlc - Colored YAML formatted output. An alternative to JSON. Great for configuration files.
- [7] none - No output, except for errors and warnings.
-Please enter a choice [Default choice(1)]: 3
-```
+### Input Specification
 
-5. Register module
-```
-az ml module register --spec-file=https://github.com/microsoft/anomalydetector/blob/master/aml_module/module_spec.yaml
-```
-
-## Input Specification
 * `Input`. A data frame directory that contains the data set. The data set should contain at least 12 rows. Each row should contain a timestamp column and one or more columns that are to be detected.
 * `Detect Mode`. The following two detect modes are supported.
   1. `AnomalyOnly`. In this mode, the module outputs columns `isAnomaly`, `mag` and `score`.
@@ -63,7 +25,7 @@ az ml module register --spec-file=https://github.com/microsoft/anomalydetector/b
 * `Sensitivity`. This parameter is used in AnomalyAndMargin mode to determine the range of the boundaries.
 * `Append result column to output`. If this parameter is set, the input data set will be output together with the results. Otherwise, only the results will be output.
 
-## Output Specification
+### Output Specification
 The output data set will contain a fraction of the following columns according to the `Detect Mode` parameter. If multiple value colums are selected, the result columns will add value column names as postfix.
 * `isAnomaly`. The anomaly result.
 * `mag`. The magnitude after spectral residual transformation.
