@@ -35,11 +35,12 @@ Follow [this tutorial](https://github.com/Azure/AzureMachineLearningGallery/blob
 
 After creating component successfully, you can use it in Azure Machine Learning designer.
 
-## How to build a pipeline in the designer
+## How to build a pipeline in AML designer
 
-1. Register this [AnomalyDetector-Manufacture dataset](https://github.com/microsoft/Cognitive-Samples-IntelligentKiosk/blob/master/Kiosk/Assets/AnomalyDetector/AnomalyDetector-Manufacture.csv) as **File dataset** in your Azure Machine Learning workspace.
+1. Prepare input dataset for the component.
+    Register this [sample AnomalyDetector-Manufacture dataset](https://github.com/microsoft/Cognitive-Samples-IntelligentKiosk/blob/master/Kiosk/Assets/AnomalyDetector/AnomalyDetector-Manufacture.csv) as **File dataset** in your Azure Machine Learning workspace.
 
-    You can also use your own dataset, make sure that it is registered as File dataset with following format, and the count of time series must be more than 12:
+    The dataset above is a sample dataset. You can use your own dataset, make sure that it is registered as File dataset with following format, and the count of time series must be more than 12:
 
     |Timestamp|Value|
     |---|---|
@@ -60,7 +61,9 @@ After creating component successfully, you can use it in Azure Machine Learning 
     |2018/7/2 4:00|22|
     |2018/7/2 6:00|22|
 
-1. Add **Spectral Residual Anomaly Detection** to canvas, connect it to the dataset, and configure the parameters. The pipeline graph is like following:
+1. Open AML designer, create a new pipeline draft and drag the registered dataset to canvas.
+    
+    Add **Spectral Residual Anomaly Detection** to canvas, connect it to the dataset, and configure the parameters. The pipeline graph is like following:
 
     ![](./ad-pipeline.png)
 
