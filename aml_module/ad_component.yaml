@@ -1,0 +1,81 @@
+$schema: http://azureml/sdk-2-0/CommandComponent.json
+name: microsoft.com.office.spectral.residual.anomaly.detection
+version: 1.1.1
+display_name: Spectral Residual Anomaly Detection
+is_deterministic: True
+type: CommandComponent
+description: This module implements the spectral residual anomaly detection algorithm for time-series.
+tags:
+  time series: ''
+  anomaly detection: ''
+inputs:
+  dataset:
+    type: AnyDirectory
+    optional: False
+  detect_mode:
+    type: Enum
+    optional: False
+    default: AnomalyOnly
+    description: Specify the detection mode.
+    enum:
+    - AnomalyOnly
+    - AnomalyAndMargin
+  timestamp_column:
+    type: String
+    optional: False
+    description: Choose the column that contains timestamps.
+  value_column:
+    type: String
+    optional: False
+    description: Choose the column that contains values.
+  batch_size:
+    type: Integer
+    optional: False
+    default: 2000
+    description: This parameter specifies the size of each batch that the detection is perfomed, 0 indicates to run all data in a single batch.
+    min: 0
+  threshold:
+    type: Float
+    optional: False
+    default: 0.3
+    description: This parameter specifies the threshold anomaly score that a point is judged as anomaly.
+    min: 0.0
+    max: 1.0
+  sensitivity:
+    type: Float
+    optional: False
+    default: 99
+    description: This parameter is used in AnomalyAndMargin mode to control the width of margin.
+    min: 0.0
+    max: 100.0
+  append_result_columns_to_output:
+    type: Boolean
+    optional: False
+    default: True
+    description: Append result columns to the original columns as output
+outputs:
+  output_port:
+    type: AnyDirectory
+environment:
+  conda:
+    conda_dependencies:
+      name: project_environment
+      channels:
+      - defaults
+      dependencies:
+      - python=3.6.8
+      - cython=0.29.2
+      - numpy=1.18.1
+      - pip:
+        - azureml-sdk==0.1.0.*
+        - --index-url https://azuremlsdktestpypi.azureedge.net/dev/aml/office/134157926D8F
+        - --extra-index-url https://pypi.org/simple
+        - pandas==0.25.3
+        - pyarrow==0.16.0
+        - matplotlib==3.1.0
+        - git+https://github.com/microsoft/anomalydetector.git@1.1
+  docker:
+    image: mcr.microsoft.com/azureml/base:intelmpi2018.3-ubuntu16.04
+  os: Linux
+command: python invoker.py --input {inputs.dataset} --detect-mode {inputs.detect_mode} --timestamp-column {inputs.timestamp_column} --value-column {inputs.value_column} --batch-size {inputs.batch_size} --threshold {inputs.threshold} --sensitivity {inputs.sensitivity} --append-mode {inputs.append_result_columns_to_output} --output {outputs.output_port}
+...
