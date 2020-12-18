@@ -38,9 +38,9 @@ After creating component successfully, you can use it in Azure Machine Learning 
 ## How to build a pipeline in AML designer
 
 1. Prepare input dataset for the component.
-    Register this [sample AnomalyDetector-Manufacture dataset](https://github.com/microsoft/Cognitive-Samples-IntelligentKiosk/blob/master/Kiosk/Assets/AnomalyDetector/AnomalyDetector-Manufacture.csv) as **File dataset** in your Azure Machine Learning workspace.
+    Register this [sample AnomalyDetector-Manufacture dataset](https://github.com/microsoft/Cognitive-Samples-IntelligentKiosk/blob/master/Kiosk/Assets/AnomalyDetector/AnomalyDetector-Manufacture.csv) as **Tabular dataset** in your Azure Machine Learning workspace.
 
-    The dataset above is a sample dataset. You can use your own dataset, make sure that it is registered as File dataset with following format, and the count of time series must be more than 12:
+    The dataset above is a sample dataset. You can use your own dataset, make sure that it is registered as Tabular dataset and you can also preprocess your dataset using Designer built-in modules. Make sure that the input dataset of **Spectral Residual Anomaly Detection** is with following format, and the count of time series must be more than 12:
 
     |Timestamp|Value|
     |---|---|
@@ -68,6 +68,5 @@ After creating component successfully, you can use it in Azure Machine Learning 
     ![](./ad-pipeline.png)
 
 1. Submit the pipeline.
-1. When the pipeline runs completed, you can click on **View output** icon in the **Outputs+logs** tab in the right panel of the **Spectral Residual Anomaly Detection** module, or right-click the module to select **View output**.
+1. When the pipeline runs completed, you can click on **Visualize** icon in the **Outputs+logs** tab in the right panel of the **Spectral Residual Anomaly Detection** module, or right-click the module to select **Visualize**.
 
-    Follow the instruction in the pop-up window, and then select **output_port** folder and check the `output.csv` file.

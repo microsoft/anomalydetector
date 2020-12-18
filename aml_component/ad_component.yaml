@@ -10,7 +10,7 @@ tags:
   anomaly detection: ''
 inputs:
   dataset:
-    type: AnyDirectory
+    type: DataFrameDirectory
     optional: False
   detect_mode:
     type: Enum
@@ -53,9 +53,14 @@ inputs:
     optional: False
     default: True
     description: Append result columns to the original columns as output
+  compute_stats_in_visualization:
+    type: Boolean
+    optional: False
+    default: True
+    description: Compute stats in visualization
 outputs:
   output_port:
-    type: AnyDirectory
+    type: DataFrameDirectory
 environment:
   conda:
     conda_dependencies:
@@ -66,8 +71,10 @@ environment:
       - python=3.6.8
       - cython=0.29.2
       - numpy=1.18.1
+      - pip=20.0
       - pip:
         - azureml-sdk==0.1.0.*
+        - azureml-designer-core==0.0.31
         - --index-url https://azuremlsdktestpypi.azureedge.net/dev/aml/office/134157926D8F
         - --extra-index-url https://pypi.org/simple
         - pandas==0.25.3
@@ -77,5 +84,5 @@ environment:
   docker:
     image: mcr.microsoft.com/azureml/base:intelmpi2018.3-ubuntu16.04
   os: Linux
-command: python invoker.py --input {inputs.dataset} --detect-mode {inputs.detect_mode} --timestamp-column {inputs.timestamp_column} --value-column {inputs.value_column} --batch-size {inputs.batch_size} --threshold {inputs.threshold} --sensitivity {inputs.sensitivity} --append-mode {inputs.append_result_columns_to_output} --output {outputs.output_port}
+command: python invoker_copy.py --input {inputs.dataset} --detect-mode {inputs.detect_mode} --timestamp-column {inputs.timestamp_column} --value-column {inputs.value_column} --batch-size {inputs.batch_size} --threshold {inputs.threshold} --sensitivity {inputs.sensitivity} --append-mode {inputs.append_result_columns_to_output} --output {outputs.output_port}
 ...
