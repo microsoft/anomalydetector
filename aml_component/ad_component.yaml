@@ -84,5 +84,5 @@ environment:
   docker:
     image: mcr.microsoft.com/azureml/base:intelmpi2018.3-ubuntu16.04
   os: Linux
-command: python invoker_copy.py --input {inputs.dataset} --detect-mode {inputs.detect_mode} --timestamp-column {inputs.timestamp_column} --value-column {inputs.value_column} --batch-size {inputs.batch_size} --threshold {inputs.threshold} --sensitivity {inputs.sensitivity} --append-mode {inputs.append_result_columns_to_output} --output {outputs.output_port}
+command: python invoker.py --input {inputs.dataset} --detect-mode {inputs.detect_mode} --timestamp-column {inputs.timestamp_column} --value-column {inputs.value_column} --batch-size {inputs.batch_size} --threshold {inputs.threshold} --sensitivity {inputs.sensitivity} --append-mode {inputs.append_result_columns_to_output} --output {outputs.output_port}
 ...

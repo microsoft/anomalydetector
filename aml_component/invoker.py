@@ -134,7 +134,7 @@ def main():
     )
 
     parser.add_argument(
-        '--compute-stats-in-visualization', type=str2bool, default=False,
+        '--compute-stats-in-visualization', type=str2bool, default=True,
         help='Enable this parameter to get stats visualization.'
     )
 
