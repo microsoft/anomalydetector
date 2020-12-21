@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 from error_messages import *
 from constants import *
+from azureml.studio.core.io.data_frame_directory import load_data_frame_from_directory, save_data_frame_to_directory
 
 PACKAGE_NAME = 'spectral_residual_anomaly_detection_module'
 VERSION = '1.0.0'
@@ -34,31 +35,9 @@ def is_timestamp_ascending(timestamps):
     return 0
 
 
-def read_as_dataframe(input_path: str):
-    if os.path.isfile(input_path):
-        if input_path.endswith(".csv"):
-            return pd.read_csv(input_path)
-        elif input_path.endswith(".parquet"):
-            return pd.read_parquet(input_path)
-    else:
-        dir_path = pathlib.Path(input_path)
-
-        csv_files = list(dir_path.glob("**/*.csv"))
-        if csv_files:
-            df_from_csv_files = (pd.read_csv(f) for f in csv_files)
-            return pd.concat(df_from_csv_files, ignore_index=True)
-
-        parquet_files = list(dir_path.glob("**/*.parquet"))
-        if parquet_files:
-            df_from_parquet_files = (pd.read_parquet(f) for f in parquet_files)
-            return pd.concat(df_from_parquet_files, ignore_index=True)
-
-    raise ValueError(f"Failed to read path: {input_path}")
-
-
 def invoke(input_path, detect_mode, timestamp_column, value_column, batch_size, threshold, sensitivity,
-            appendMode, output_path):
-    df = read_as_dataframe(input_path)
+            appendMode, compute_stats_in_visualization, output_path):
+    df = load_data_frame_from_directory(input_path).data
     logging.info(f"Shape of loaded DataFrame: {df.shape}")
 
     if df.shape[0] < MIN_POINTS:
@@ -108,18 +87,14 @@ def invoke(input_path, detect_mode, timestamp_column, value_column, batch_size, 
     if appendMode is True:
         result = pd.merge(df, result, left_index=True, right_index=True)
 
-    if not os.path.isdir(output_path):
-        os.mkdir(output_path)
-
-    result.to_csv(f"{output_path}/output.csv", index=False)
-
+    save_data_frame_to_directory(output_path, result, compute_stats_in_visualization=compute_stats_in_visualization)
 
 def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
         '--input-path',
-        help='Input file path'
+        help='Input Dataframe path'
     )
 
     parser.add_argument(
@@ -159,8 +134,13 @@ def main():
     )
 
     parser.add_argument(
+        '--compute-stats-in-visualization', type=str2bool, default=True,
+        help='Enable this parameter to get stats visualization.'
+    )
+
+    parser.add_argument(
         '--output-path',
-        help='Output path'
+        help='Output Dataframe path'
     )
 
     args, _ = parser.parse_known_args()
@@ -179,7 +159,8 @@ def main():
     logging.debug(f"output path: {args.output_path}")
 
     invoke(args.input_path, args.detect_mode, args.timestamp_column, args.value_column,
-        args.batch_size, args.threshold, args.sensitivity, args.append_mode, args.output_path)
+        args.batch_size, args.threshold, args.sensitivity, args.append_mode, 
+        args.compute_stats_in_visualization, args.output_path)
 
 
 if __name__ == '__main__':
